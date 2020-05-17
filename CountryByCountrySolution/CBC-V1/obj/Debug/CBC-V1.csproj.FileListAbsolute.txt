@@ -1,0 +1,8 @@
+C:\Git\CountryByCountrySolution\CountryByCountrySolution\CBC-V1\bin\Debug\CBC-V1.exe.config
+C:\Git\CountryByCountrySolution\CountryByCountrySolution\CBC-V1\bin\Debug\CBC-V1.exe
+C:\Git\CountryByCountrySolution\CountryByCountrySolution\CBC-V1\bin\Debug\CBC-V1.pdb
+C:\Git\CountryByCountrySolution\CountryByCountrySolution\CBC-V1\obj\Debug\CBC_V1.Properties.Resources.resources
+C:\Git\CountryByCountrySolution\CountryByCountrySolution\CBC-V1\obj\Debug\CBC-V1.csproj.GenerateResource.cache
+C:\Git\CountryByCountrySolution\CountryByCountrySolution\CBC-V1\obj\Debug\CBC-V1.csproj.CoreCompileInputs.cache
+C:\Git\CountryByCountrySolution\CountryByCountrySolution\CBC-V1\obj\Debug\CBC-V1.exe
+C:\Git\CountryByCountrySolution\CountryByCountrySolution\CBC-V1\obj\Debug\CBC-V1.pdb
