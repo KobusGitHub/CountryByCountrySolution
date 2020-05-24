@@ -12,12 +12,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Xml;
+using System.Xml.Serialization;
 
 namespace CBC_V1
 {
     public partial class Form1 : Form
     {
-        DocSpec_Type gloabalDocSpec = null;
+        // DocSpec_Type gloabalDocSpec = null;
         FileInfo xlsxFile = null;
         string xmlFilePath = null;
         string destLogFilePath = null;
@@ -99,9 +101,41 @@ namespace CBC_V1
 
         }
 
+
+        public DocSpec_Type GetDocSpec(ExcelPackage package, string docTypeIndic, string docRefId, string corrDocRefId)
+        {
+            DocSpec_Type docSpec;
+
+            if (string.IsNullOrEmpty(corrDocRefId))
+            {
+                docSpec = new DocSpec_Type
+                {
+                    DocTypeIndic = EnumLookup.GetOECDDocTypeIndicEnumType(docTypeIndic),
+                    DocRefId = docRefId,
+                };
+            }
+            else
+            {
+                docSpec = new DocSpec_Type
+                {
+                    DocTypeIndic = EnumLookup.GetOECDDocTypeIndicEnumType(docTypeIndic),
+                    DocRefId = docRefId,
+                    CorrDocRefId = "",
+                    CorrMessageRefId = ""
+                };
+            }
+
+            return docSpec;
+        }
         private void StartWork()
         {
             // xsd.exe CbcXML_v1.0.1.xsd /Classes oecdtypes_v4.1.xsd /Classes isocbctypes_v1.0.1.xsd
+
+
+
+
+
+
             var cbc_oecd = new CBC_OECD();
 
             ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
@@ -109,13 +143,13 @@ namespace CBC_V1
             {
 
 
-                gloabalDocSpec = new DocSpec_Type
-                {
-                    DocTypeIndic = EnumLookup.GetOECDDocTypeIndicEnumType(GetExcelStringValue(package, "CoverPage", "B24")), //   (S: CoverPage; Cells: B24)
-                    DocRefId = GetExcelStringValue(package, "CoverPage", "B25"), // "ZA2018DOCBAW", //   (S: CoverPage; Cells: B25)
-                    CorrDocRefId = "",
-                    CorrMessageRefId = ""
-                };
+                //gloabalDocSpec = new DocSpec_Type
+                //{
+                //    DocTypeIndic = EnumLookup.GetOECDDocTypeIndicEnumType(GetExcelStringValue(package, "CoverPage", "B24")), //   (S: CoverPage; Cells: B24)
+                //    DocRefId = GetExcelStringValue(package, "CoverPage", "B25"), // "ZA2018DOCBAW", //   (S: CoverPage; Cells: B25)
+                //    CorrDocRefId = "",
+                //    CorrMessageRefId = ""
+                //};
 
                 cbc_oecd.version = "1.0";
                 cbc_oecd.MessageSpec = GetMessageSpec(package);
@@ -123,6 +157,27 @@ namespace CBC_V1
 
             }
 
+            var xml = "";
+            XmlSerializer xsSubmit = new XmlSerializer(typeof(CBC_OECD));
+            using (var sww = new StringWriter())
+            {
+                XmlWriterSettings settings = new XmlWriterSettings();
+                settings.Indent = true;
+                settings.NewLineOnAttributes = true;
+
+                using (XmlWriter writer = XmlWriter.Create(sww, settings))
+                {
+                    xsSubmit.Serialize(writer, cbc_oecd);
+                    xml = sww.ToString(); // Your XML
+                }
+            }
+
+
+            using (StreamWriter file = new StreamWriter(xmlFilePath))
+            {
+                file.Write(xml);
+
+            }
 
         }
 
@@ -166,7 +221,7 @@ namespace CBC_V1
             messageSpec.Language = LanguageCode_Type.EN;
 
             // Warning
-            messageSpec.Warning = "";
+            messageSpec.Warning = GetExcelStringValue(package, "CoverPage", "B27");
 
             // Contact
             messageSpec.Contact = GetExcelStringValue(package, "CoverPage", "B1"); // (S: CoverPage; Cells:B1)
@@ -177,8 +232,6 @@ namespace CBC_V1
             // MessageTypeIndic
             messageSpec.MessageTypeIndic = EnumLookup.GetCbcMessageTypeIndicEnumType(GetExcelStringValue(package, "CoverPage", "B3")); // CbcMessageTypeIndic_EnumType.CBC401; //  (S: CoverPage; Cells:B3)
 
-            //// CorrMessageRefId
-            //messageSpec.CorrMessageRefId = new string[];
 
             // ReportingPeriod
             messageSpec.ReportingPeriod = new DateTime(GetExcelIntValue(package, "CoverPage", "B4").Value, GetExcelIntValue(package, "CoverPage", "B5").Value, GetExcelIntValue(package, "CoverPage", "B6").Value); // new DateTime(2019, 9, 30);  //  (S: CoverPage; Cells:B4, B5, B6)
@@ -186,8 +239,10 @@ namespace CBC_V1
             messageSpec.Timestamp = DateTime.Now;
 
 
-            // TODO: messageSpec.SendingEntityIN = null;
-            // TODO: messageSpec.CorrMessageRefId = null;
+            // messageSpec.SendingEntityIN = null; // TODO Check with SARS
+            messageSpec.SendingEntityIN = GetExcelStringValue(package, "CoverPage", "B12");
+
+            // messageSpec.CorrMessageRefId = null;  // This data element is not used for CbC reporting
 
 
             return messageSpec;
@@ -198,12 +253,7 @@ namespace CBC_V1
         private List<CbcBody_Type> GetCbcBodies(ExcelPackage package)
         {
             var cbcBodies = new List<CbcBody_Type>();
-
-
-            // We need to loop through something
-            // for (int i = 0; i < 10; i++)  // (S: SUMMARY; Cells:B Count)
-            //foreach (var receivingCountry in receivingCountries)
-            //{
+                     
             var cbcBody = new CbcBody_Type();
 
             cbcBody.ReportingEntity = GetReportingEntity(package);
@@ -212,9 +262,7 @@ namespace CBC_V1
             cbcBody.CbcReports = GetCbcReports(package).ToArray();
 
             cbcBodies.Add(cbcBody);
-            //}
-
-
+         
 
             return cbcBodies;
         }
@@ -238,15 +286,10 @@ namespace CBC_V1
             repEnt.ReportingRole = EnumLookup.GetCbcReportingRoleEnumType(GetExcelStringValue(package, "CoverPage", "B17")); // CbcReportingRole_EnumType.CBC701; // (S: CoverPage; Cells: B17)
 
 
-
-            repEnt.NameMNEGroup = GetExcelStringValue(package, "CoverPage", "B16"); // "Barloworld Limited"; // (S: CoverPage; Cells: B16)
-            repEnt.ReportingPeriod = new ReportingEntity_TypeReportingPeriod()
-            {
-                StartDate = new DateTime(GetExcelIntValue(package, "CoverPage", "B18").Value, GetExcelIntValue(package, "CoverPage", "B19").Value, GetExcelIntValue(package, "CoverPage", "B20").Value), // new DateTime(2018, 10, 1),  // (S: CoverPage; Cells: B18, B19, B20)
-                EndDate = new DateTime(GetExcelIntValue(package, "CoverPage", "B21").Value, GetExcelIntValue(package, "CoverPage", "B22").Value, GetExcelIntValue(package, "CoverPage", "B23").Value), // new DateTime(2019, 09, 30)  // (S: CoverPage; Cells: B21, B22, B23)
-            };
-
-            repEnt.DocSpec = gloabalDocSpec;
+            var docTypeIndic = GetExcelStringValue(package, "CoverPage", "B24");
+            var docRefId = GetExcelStringValue(package, "CoverPage", "B25");
+            var corrDocRefId = GetExcelStringValue(package, "CoverPage", "B26");
+            repEnt.DocSpec = GetDocSpec(package, docTypeIndic, docRefId, corrDocRefId);
 
             return repEnt;
         }
@@ -259,14 +302,12 @@ namespace CBC_V1
            string organisationINTypeValue,
            string nameOrganisation,
            CountryCode_Type addressCountryCode,
-           object[] address,
+           string[] address,
            OECDLegalAddressType_EnumType legalAddressType
            )
         {
-            var entity = new OrganisationParty_Type();
-
             // Entity
-            entity = new OrganisationParty_Type();
+            var entity = new OrganisationParty_Type();
 
             entity.ResCountryCode = new CountryCode_Type[] { resCountryCode };
 
@@ -281,7 +322,7 @@ namespace CBC_V1
             {
                 INType = "Company Registration Number",
                 issuedBy = organisationINTypeIssuedBy,
-                issuedBySpecified = true,
+                issuedBySpecified = true,  // XML ignore
                 Value = organisationINTypeValue
             };
             entity.IN = new OrganisationIN_Type[] { organisationIN_Type };
@@ -292,10 +333,17 @@ namespace CBC_V1
             entity.Name = new NameOrganisation_Type[] { nameOrganisation_Type };
 
 
+            var addrItem = new AddressFix_Type()
+            {
+                Street = address[0],
+                City = address[1],
+                PostCode = address[2]
+            };
+
             var addr = new Address_Type()
             {
                 CountryCode = addressCountryCode,
-                Items = address,
+                Items = new AddressFix_Type[] { addrItem },
                 legalAddressType = legalAddressType,
                 legalAddressTypeSpecified = true
             };
@@ -310,14 +358,7 @@ namespace CBC_V1
         {
             var list = new List<CorrectableAdditionalInfo_Type>();
 
-            //for (int ai = 0; ai < 10; ai++)
-            //{
-            var info = new CorrectableAdditionalInfo_Type();
-            info.DocSpec = gloabalDocSpec;
-
-            var otherInformationList = new List<StringMin1Max4000WithLang_Type>();
-
-            int rowNumber = 1;
+            int rowNumber = 2;
             while (true)
             {
                 var cellValue = GetExcelStringValue(package, "Additional Information", "A" + rowNumber);
@@ -326,28 +367,28 @@ namespace CBC_V1
                     break;
                 }
 
+                var info = new CorrectableAdditionalInfo_Type();
+
+                var docTypeIndic = GetExcelStringValue(package, "Additional Information", "B" + rowNumber);
+                var docRefId = GetExcelStringValue(package, "Additional Information", "C" + rowNumber);
+                var corrDocRefId = GetExcelStringValue(package, "Additional Information", "D" + rowNumber);
+                info.DocSpec = GetDocSpec(package, docTypeIndic, docRefId, corrDocRefId);
+
                 if (cellValue.Length >= 4000)
                 {
                     throw new ArgumentException("Other Information not allowed more than 4000 characters in one cell");
                 }
 
-                otherInformationList.Add(new StringMin1Max4000WithLang_Type() //  (S: Additional Information; Cells:A)
-                {
-                    language = LanguageCode_Type.EN,
-                    languageSpecified = true,
-                    Value = cellValue
-                });
+                info.OtherInfo = cellValue;
+
+                // info.ResCountryCode = null; - Optional
+                // info.SummaryRef = null; - Optional
+
+                list.Add(info);
 
                 rowNumber++;
             }
 
-            info.OtherInfo = otherInformationList.ToArray();
-
-            // TODO: info.ResCountryCode = null;
-            // TODO: info.SummaryRef = null;
-
-            list.Add(info);
-            //}
             return list;
         }
 
@@ -358,29 +399,30 @@ namespace CBC_V1
             var cbcReports = new List<CorrectableCbcReport_Type>();
 
             // Some Loop
-            // for (int i = 0; i < 10; i++) // (S: SUMMARY; Cells: B Count)
             foreach (var receivingCountryClass in receivingCountryClass)
             {
                 var cbcRep = new CorrectableCbcReport_Type();
 
-                cbcRep.ResCountryCode = EnumLookup.GetCountryCodeEnumType(receivingCountryClass.CountryCode); // CountryCode_Type.AO; // (S: SUMMARY; Cells: A)
+                cbcRep.ResCountryCode = EnumLookup.GetCountryCodeEnumType(receivingCountryClass.CountryCode);
 
-                cbcRep.DocSpec = gloabalDocSpec;
+                var docTypeIndic = GetExcelStringValue(package, "SUMMARY", "M" + receivingCountryClass.RowNumber);
+                var docRefId = GetExcelStringValue(package, "SUMMARY", "N" + receivingCountryClass.RowNumber);
+                var corrDocRefId = GetExcelStringValue(package, "SUMMARY", "O" + receivingCountryClass.RowNumber);
+                cbcRep.DocSpec = GetDocSpec(package, docTypeIndic, docRefId, corrDocRefId);
+
 
                 // Summary
-                // (S: SUMMARY; Cells:                         ,K              ,C              ,D                ,L     ,E              ,G              ,F              ,H                 ,J            ,I)
-                // cbcRep.Summary = GetSummary(currCode_Type.ZAR, "766604888.40", "-69810833.20", "-1217694218.00", "363", "-217527466.40", "509150539.20", "-771290869.60", "-1280441408.80", "55195379.39", "53236237.67");
                 cbcRep.Summary = GetSummary(currCode_Type.ZAR,
                     GetExcelStringValue(package, "SUMMARY", "K" + receivingCountryClass.RowNumber),
-                    GetExcelStringValue(package, "SUMMARY", "C" + receivingCountryClass.RowNumber),  // "-69810833.20",
-                    GetExcelStringValue(package, "SUMMARY", "D" + receivingCountryClass.RowNumber),  // "-1217694218.00",
-                    GetExcelStringValue(package, "SUMMARY", "L" + receivingCountryClass.RowNumber),  // "363",
-                    GetExcelStringValue(package, "SUMMARY", "E" + receivingCountryClass.RowNumber),  // "-217527466.40",
-                    GetExcelStringValue(package, "SUMMARY", "G" + receivingCountryClass.RowNumber),  // "509150539.20",
-                    GetExcelStringValue(package, "SUMMARY", "F" + receivingCountryClass.RowNumber),  // "-771290869.60",
-                    GetExcelStringValue(package, "SUMMARY", "H" + receivingCountryClass.RowNumber),  // "-1280441408.80",
-                    GetExcelStringValue(package, "SUMMARY", "J" + receivingCountryClass.RowNumber),  // "55195379.39",
-                    GetExcelStringValue(package, "SUMMARY", "I" + receivingCountryClass.RowNumber));  // "53236237.67");
+                    GetExcelStringValue(package, "SUMMARY", "C" + receivingCountryClass.RowNumber),
+                    GetExcelStringValue(package, "SUMMARY", "D" + receivingCountryClass.RowNumber),
+                    GetExcelStringValue(package, "SUMMARY", "L" + receivingCountryClass.RowNumber),
+                    GetExcelStringValue(package, "SUMMARY", "E" + receivingCountryClass.RowNumber),
+                    GetExcelStringValue(package, "SUMMARY", "G" + receivingCountryClass.RowNumber),
+                    GetExcelStringValue(package, "SUMMARY", "F" + receivingCountryClass.RowNumber),
+                    GetExcelStringValue(package, "SUMMARY", "H" + receivingCountryClass.RowNumber),
+                    GetExcelStringValue(package, "SUMMARY", "J" + receivingCountryClass.RowNumber),
+                    GetExcelStringValue(package, "SUMMARY", "I" + receivingCountryClass.RowNumber));
 
                 // Const Entities
                 cbcRep.ConstEntities = GetConstituentEntities(package, receivingCountryClass).ToArray();
@@ -457,7 +499,7 @@ namespace CBC_V1
 
             summary.TaxPaid = new MonAmnt_Type
             {
-                currCode = currCode_Type.ZAR,
+                currCode = currCode,
                 Value = taxPaid
             };
 
@@ -475,25 +517,16 @@ namespace CBC_V1
             int rowNumber = 2;
             while (true)
             {
-                // (S: CE_XX like CE_AO; Cells: X Count)
                 var cellValue = GetExcelStringValue(package, workbookName, "A" + rowNumber);
                 if (string.IsNullOrEmpty(cellValue))
                 {
                     break;
                 }
 
-                //   // Loop
-                //for (int i = 0; i < 10; i++) // (S: CE_XX like CE_AO; Cells: X Count)
-                //{
-                var constEntity = new ConstituentEntity_Type();
 
+                var constEntity = new ConstituentEntity_Type();
                 var bizActivities = new List<CbcBizActivityType_EnumType>();
 
-
-                //for (int bizA = 0; bizA < 10; bizA++) // (S: CE_XX; Cells: X Count)
-                //{
-                //    bizActivities.Add(CbcBizActivityType_EnumType.CBC505); // (S: CE_XX; Cells: H)
-                //}
                 var excelActValue = GetExcelStringValue(package, workbookName, "H" + rowNumber);
                 var actCodes = excelActValue.Split(';');
                 foreach (var actCode in actCodes)
@@ -506,21 +539,21 @@ namespace CBC_V1
                 constEntity.BizActivities = bizActivities.ToArray();
 
 
-                constEntity.ConstEntity = GetOrganisationPartyType(EnumLookup.GetCountryCodeEnumType(GetExcelStringValue(package, workbookName, "G" + rowNumber)), // CountryCode_Type.AO, // (S: CE_XX; Cells: G)
-                    EnumLookup.GetCountryCodeEnumType(GetExcelStringValue(package, workbookName, "E" + rowNumber)), // CountryCode_Type.AO, // (S: CE_XX; Cells: E)
-                    GetExcelStringValue(package, workbookName, "D" + rowNumber), //"5410000595", // (S: CE_XX; Cells: D)
-                    EnumLookup.GetCountryCodeEnumType(GetExcelStringValue(package, workbookName, "C" + rowNumber)), // CountryCode_Type.AO, // (S: CE_XX; Cells: C)
-                    GetExcelStringValue(package, workbookName, "B" + rowNumber), //"1996.1", // (S: CE_XX; Cells: B)
-                    GetExcelStringValue(package, workbookName, "A" + rowNumber), //"Barloworld Equipamentos Angola Limitada", // (S: CE_XX; Cells: A)
-                    EnumLookup.GetCountryCodeEnumType(GetExcelStringValue(package, workbookName, "K" + rowNumber)), // CountryCode_Type.AO, // (S: CE_XX; Cells: K)
-                    GetExcelStringValue(package, workbookName, "J" + rowNumber).Split(';'), //new object[] { "", "" }, // (S: CE_XX; Cells: J)
-                    EnumLookup.GetOECDLegalAddressTypeEnumType(GetExcelStringValue(package, workbookName, "L" + rowNumber))); // OECDLegalAddressType_EnumType.OECD304); // (S: CE_XX; Cells: L)
+                constEntity.ConstEntity = GetOrganisationPartyType(EnumLookup.GetCountryCodeEnumType(GetExcelStringValue(package, workbookName, "G" + rowNumber)),
+                    EnumLookup.GetCountryCodeEnumType(GetExcelStringValue(package, workbookName, "E" + rowNumber)),
+                    GetExcelStringValue(package, workbookName, "D" + rowNumber),
+                    EnumLookup.GetCountryCodeEnumType(GetExcelStringValue(package, workbookName, "C" + rowNumber)),
+                    GetExcelStringValue(package, workbookName, "B" + rowNumber),
+                    GetExcelStringValue(package, workbookName, "A" + rowNumber),
+                    EnumLookup.GetCountryCodeEnumType(GetExcelStringValue(package, workbookName, "K" + rowNumber)),
+                    GetExcelStringValue(package, workbookName, "J" + rowNumber).Split(';'),
+                    EnumLookup.GetOECDLegalAddressTypeEnumType(GetExcelStringValue(package, workbookName, "L" + rowNumber)));
 
-                constEntity.IncorpCountryCode = EnumLookup.GetCountryCodeEnumType(GetExcelStringValue(package, workbookName, "F" + rowNumber)); // CountryCode_Type.AO; // (S: CE_XX; Cells: F)
-                constEntity.IncorpCountryCodeSpecified = true;
-                constEntity.OtherEntityInfo = GetExcelStringValue(package, workbookName, "I" + rowNumber); // ""; // (S: CE_XX; Cells: I)
-                constEntity.Role = EnumLookup.GetUltimateParentEntityRoleEnumType(GetExcelStringValue(package, workbookName, "M" + rowNumber)); // UltimateParentEntityRole_EnumType.CBC803; // (S: CE_XX; Cells: M)
-                constEntity.RoleSpecified = true;
+
+                // TODO - It doesnt want to serialize this
+                constEntity.IncorpCountryCode = EnumLookup.GetCountryCodeEnumType(GetExcelStringValue(package, workbookName, "F" + rowNumber));
+                constEntity.OtherEntityInfo = GetExcelStringValue(package, workbookName, "I" + rowNumber); 
+
 
                 constEntities.Add(constEntity);
 
