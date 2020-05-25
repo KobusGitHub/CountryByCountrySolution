@@ -1,4 +1,5 @@
-﻿using CountryByCountryReportV1;
+﻿using CBC_V1.models;
+using CountryByCountryReportV1;
 using CountryByCountryReportV1.models;
 using OfficeOpenXml;
 using System;
@@ -25,6 +26,7 @@ namespace CBC_V1
         string destLogFilePath = null;
         bool canWriteToLogFile = true;
         List<ReceivingCountryClass> receivingCountryClass = new List<ReceivingCountryClass>();
+        List<ConstituentEntitiesSummary> ConstituentEntitiesSummaries = new List<ConstituentEntitiesSummary>();
 
         public Form1()
         {
@@ -132,11 +134,11 @@ namespace CBC_V1
             // xsd.exe CbcXML_v1.0.1.xsd /Classes oecdtypes_v4.1.xsd /Classes isocbctypes_v1.0.1.xsd
 
 
+            var cbcfd = new CountryByCountryDeclarationStructure();
+            cbcfd.CBC_OECD = new CBC_OECD();
+            cbcfd.CBC_SARS = new CBC_SARS_Structure();
 
 
-
-
-            var cbc_oecd = new CBC_OECD();
 
             ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
             using (var package = new ExcelPackage(xlsxFile))
@@ -151,14 +153,15 @@ namespace CBC_V1
                 //    CorrMessageRefId = ""
                 //};
 
-                cbc_oecd.version = "1.0";
-                cbc_oecd.MessageSpec = GetMessageSpec(package);
-                cbc_oecd.CbcBody = GetCbcBodies(package).ToArray();
+                cbcfd.CBC_OECD.version = "1.0";
+                cbcfd.CBC_OECD.MessageSpec = GetMessageSpec(package);
+                cbcfd.CBC_OECD.CbcBody = GetCbcBodies(package).ToArray();
 
+                cbcfd.CBC_SARS = GetCBC_SARS_Structure(package);
             }
 
             var xml = "";
-            XmlSerializer xsSubmit = new XmlSerializer(typeof(CBC_OECD));
+            XmlSerializer xsSubmit = new XmlSerializer(typeof(CountryByCountryDeclarationStructure));
             using (var sww = new StringWriter())
             {
                 XmlWriterSettings settings = new XmlWriterSettings();
@@ -167,7 +170,7 @@ namespace CBC_V1
 
                 using (XmlWriter writer = XmlWriter.Create(sww, settings))
                 {
-                    xsSubmit.Serialize(writer, cbc_oecd);
+                    xsSubmit.Serialize(writer, cbcfd);
                     xml = sww.ToString(); // Your XML
                 }
             }
@@ -178,6 +181,48 @@ namespace CBC_V1
                 file.Write(xml);
 
             }
+
+        }
+
+
+        private CBC_SARS_Structure GetCBC_SARS_Structure(ExcelPackage package)
+        {
+            var sarsStructure = new CBC_SARS_Structure();
+
+            sarsStructure.ContactDetails = new CBC_SARS_StructureContactDetails
+            {
+                Surname = this.GetExcelStringValue(package, "CoverPage", "B29"),
+                FirstNames = this.GetExcelStringValue(package, "CoverPage", "B30"),
+                BusTelNo1 = this.GetExcelStringValue(package, "CoverPage", "B31"),
+                BusTelNo2 = this.GetExcelStringValue(package, "CoverPage", "B32"),
+                CellNo = this.GetExcelStringValue(package, "CoverPage", "B33"),
+                EmailAddress = this.GetExcelStringValue(package, "CoverPage", "B34")
+            };
+
+            sarsStructure.DeclarationDate = DateTime.Parse(this.GetExcelStringValue(package, "CoverPage", "B28"));
+
+            sarsStructure.TotalConsolidatedMNEGroupRevenue = new FinancialAmtWithCurrencyStructure()
+            {
+                CurrencyCode = "ZA",
+                Amount = Convert.ToInt64(this.GetExcelDoubleValue(package, "CoverPage", "B35").Value)
+            };
+            sarsStructure.NoOfTaxJurisdictions = Convert.ToInt16(this.receivingCountryClass.Count());
+
+
+            List<CBC_SARS_StructureTaxJurisdiction> stjList = new List<CBC_SARS_StructureTaxJurisdiction>();
+
+            foreach (var summary in this.ConstituentEntitiesSummaries)
+            {
+                stjList.Add(new CBC_SARS_StructureTaxJurisdiction
+                {
+                    NoOfConstituentEntities = Convert.ToInt16(summary.ConstituentEntityCount)
+                });
+            }
+          
+
+            sarsStructure.TaxJurisdictions = stjList.ToArray();
+
+            return sarsStructure;
 
         }
 
@@ -212,7 +257,7 @@ namespace CBC_V1
                 });
                 rowNumber++;
             }
-            messageSpec.ReceivingCountry = ReceivingCountries.ToArray();
+            messageSpec.ReceivingCountry = new CountryCode_Type[] { CountryCode_Type.ZA };
 
             // MessageType
             messageSpec.MessageType = MessageType_EnumType.CBC;
@@ -240,8 +285,7 @@ namespace CBC_V1
 
 
             // messageSpec.SendingEntityIN = null; // TODO Check with SARS
-            messageSpec.SendingEntityIN = GetExcelStringValue(package, "CoverPage", "B12");
-
+            
             // messageSpec.CorrMessageRefId = null;  // This data element is not used for CbC reporting
 
 
@@ -559,6 +603,9 @@ namespace CBC_V1
 
                 rowNumber++;
             }
+
+            this.ConstituentEntitiesSummaries.Add(new ConstituentEntitiesSummary { CountryCode = receivingCountryClass.CountryCode, ConstituentEntityCount = rowNumber - 2 });
+
             return constEntities;
         }
 

@@ -60,8 +60,9 @@
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
-    <Compile Include="models\CbcXML_v1_0_1_oecdtypes_v4_1_isocbctypes_v1_0_1.cs" />
+    <Compile Include="models\ConstituentEntitiesSummary.cs" />
     <Compile Include="models\ReceivingCountryClass.cs" />
+    <Compile Include="models\SARSCountryByCountryFileDeclarationV1_1_CbcXML_v1_0_1_oecdtypes_v4_1_isocbctypes_v1_0_1_SARS_CBCV1_0.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
