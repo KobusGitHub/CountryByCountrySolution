@@ -200,10 +200,11 @@ namespace CBC_V1
             };
 
             sarsStructure.DeclarationDate = DateTime.Parse(this.GetExcelStringValue(package, "CoverPage", "B28"));
+            sarsStructure.DeclarationDateSpecified = true;
 
             sarsStructure.TotalConsolidatedMNEGroupRevenue = new FinancialAmtWithCurrencyStructure()
             {
-                CurrencyCode = "ZA",
+                CurrencyCode = "ZAR",
                 Amount = Convert.ToInt64(this.GetExcelDoubleValue(package, "CoverPage", "B35").Value)
             };
             sarsStructure.NoOfTaxJurisdictions = Convert.ToInt16(this.receivingCountryClass.Count());
@@ -264,6 +265,7 @@ namespace CBC_V1
 
             // Language
             messageSpec.Language = LanguageCode_Type.EN;
+            messageSpec.LanguageSpecified = true;
 
             // Warning
             messageSpec.Warning = GetExcelStringValue(package, "CoverPage", "B27");
@@ -276,10 +278,11 @@ namespace CBC_V1
 
             // MessageTypeIndic
             messageSpec.MessageTypeIndic = EnumLookup.GetCbcMessageTypeIndicEnumType(GetExcelStringValue(package, "CoverPage", "B3")); // CbcMessageTypeIndic_EnumType.CBC401; //  (S: CoverPage; Cells:B3)
-
+            messageSpec.MessageTypeIndicSpecified = true;
 
             // ReportingPeriod
-            messageSpec.ReportingPeriod = new DateTime(GetExcelIntValue(package, "CoverPage", "B4").Value, GetExcelIntValue(package, "CoverPage", "B5").Value, GetExcelIntValue(package, "CoverPage", "B6").Value); // new DateTime(2019, 9, 30);  //  (S: CoverPage; Cells:B4, B5, B6)
+            // messageSpec.ReportingPeriod = new DateTime(GetExcelIntValue(package, "CoverPage", "B4").Value, GetExcelIntValue(package, "CoverPage", "B5").Value, GetExcelIntValue(package, "CoverPage", "B6").Value); // new DateTime(2019, 9, 30);  //  (S: CoverPage; Cells:B4, B5, B6)
+            messageSpec.ReportingPeriod = DateTime.Parse(GetExcelStringValue(package, "CoverPage", "B4"));
 
             messageSpec.Timestamp = DateTime.Now;
 
@@ -366,7 +369,7 @@ namespace CBC_V1
             {
                 INType = "Company Registration Number",
                 issuedBy = organisationINTypeIssuedBy,
-                issuedBySpecified = true,  // XML ignore
+                issuedBySpecified = true,
                 Value = organisationINTypeValue
             };
             entity.IN = new OrganisationIN_Type[] { organisationIN_Type };
@@ -379,9 +382,9 @@ namespace CBC_V1
 
             var addrItem = new AddressFix_Type()
             {
-                Street = address[0],
-                City = address[1],
-                PostCode = address[2]
+                Street = address[0].Trim(),
+                City = address[1].Trim(),
+                PostCode = address[2].Trim()
             };
 
             var addr = new Address_Type()
@@ -596,6 +599,8 @@ namespace CBC_V1
 
                 // TODO - It doesnt want to serialize this
                 constEntity.IncorpCountryCode = EnumLookup.GetCountryCodeEnumType(GetExcelStringValue(package, workbookName, "F" + rowNumber));
+                constEntity.IncorpCountryCodeSpecified = true;
+
                 constEntity.OtherEntityInfo = GetExcelStringValue(package, workbookName, "I" + rowNumber); 
 
 
@@ -622,7 +627,7 @@ namespace CBC_V1
             {
                 return null;
             }
-            return package.Workbook.Worksheets[workbook].Cells[cell].Value.ToString();
+            return package.Workbook.Worksheets[workbook].Cells[cell].Value.ToString().Trim();
         }
 
         private int? GetExcelIntValue(ExcelPackage package, string workbook, string cell)
@@ -634,7 +639,7 @@ namespace CBC_V1
             {
                 return null;
             }
-            return int.Parse(package.Workbook.Worksheets[workbook].Cells[cell].Value.ToString());
+            return int.Parse(package.Workbook.Worksheets[workbook].Cells[cell].Value.ToString().Trim());
         }
 
         private double? GetExcelDoubleValue(ExcelPackage package, string workbook, string cell)
@@ -646,7 +651,7 @@ namespace CBC_V1
             {
                 return null;
             }
-            return Convert.ToDouble(package.Workbook.Worksheets[workbook].Cells[cell].Value.ToString());
+            return Convert.ToDouble(package.Workbook.Worksheets[workbook].Cells[cell].Value.ToString().Trim());
         }
 
 
