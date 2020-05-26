@@ -219,7 +219,7 @@ namespace CBC_V1
                     NoOfConstituentEntities = Convert.ToInt16(summary.ConstituentEntityCount)
                 });
             }
-          
+
 
             sarsStructure.TaxJurisdictions = stjList.ToArray();
 
@@ -288,7 +288,7 @@ namespace CBC_V1
 
 
             // messageSpec.SendingEntityIN = null; // TODO Check with SARS
-            
+
             // messageSpec.CorrMessageRefId = null;  // This data element is not used for CbC reporting
 
 
@@ -300,7 +300,7 @@ namespace CBC_V1
         private List<CbcBody_Type> GetCbcBodies(ExcelPackage package)
         {
             var cbcBodies = new List<CbcBody_Type>();
-                     
+
             var cbcBody = new CbcBody_Type();
 
             cbcBody.ReportingEntity = GetReportingEntity(package);
@@ -309,7 +309,7 @@ namespace CBC_V1
             cbcBody.CbcReports = GetCbcReports(package).ToArray();
 
             cbcBodies.Add(cbcBody);
-         
+
 
             return cbcBodies;
         }
@@ -380,21 +380,37 @@ namespace CBC_V1
             entity.Name = new NameOrganisation_Type[] { nameOrganisation_Type };
 
 
-            var addrItem = new AddressFix_Type()
-            {
-                Street = address[0].Trim(),
-                City = address[1].Trim(),
-                PostCode = address[2].Trim()
-            };
+            //if (address.Count() == 3)
+            //{
+            //    var addrItem = new AddressFix_Type()
+            //    {
+            //        Street = address[0].Trim(),
+            //        City = address[1].Trim(),
+            //        PostCode = address[2].Trim()
+            //    };
 
-            var addr = new Address_Type()
-            {
-                CountryCode = addressCountryCode,
-                Items = new AddressFix_Type[] { addrItem },
-                legalAddressType = legalAddressType,
-                legalAddressTypeSpecified = true
-            };
-            entity.Address = new Address_Type[] { addr };
+            //    var addr = new Address_Type()
+            //    {
+            //        CountryCode = addressCountryCode,
+            //        Items = new AddressFix_Type[] { addrItem },
+            //        legalAddressType = legalAddressType,
+            //        legalAddressTypeSpecified = true
+            //    };
+            //    entity.Address = new Address_Type[] { addr };
+            //}
+            //else
+            //{
+                var adr = string.Join(",", address);
+                var addr = new Address_Type()
+                {
+                    CountryCode = addressCountryCode,
+                    Items = new string[] { adr },
+                    legalAddressType = legalAddressType,
+                    legalAddressTypeSpecified = true
+                };
+                entity.Address = new Address_Type[] { addr };
+            //}
+
 
             return entity;
 
@@ -601,7 +617,7 @@ namespace CBC_V1
                 constEntity.IncorpCountryCode = EnumLookup.GetCountryCodeEnumType(GetExcelStringValue(package, workbookName, "F" + rowNumber));
                 constEntity.IncorpCountryCodeSpecified = true;
 
-                constEntity.OtherEntityInfo = GetExcelStringValue(package, workbookName, "I" + rowNumber); 
+                constEntity.OtherEntityInfo = GetExcelStringValue(package, workbookName, "I" + rowNumber);
 
 
                 constEntities.Add(constEntity);
