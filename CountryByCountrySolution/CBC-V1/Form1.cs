@@ -11,6 +11,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -500,6 +501,23 @@ namespace CBC_V1
         }
 
 
+        private string RemoveDecimalFromString(string value)
+        {
+            //if (!value.Contains("."))
+            //{
+            //    return value;
+            //}
+
+            //var indexOfDot = value.IndexOf(".");
+            //var returnValue = value.Substring(0, indexOfDot + 1);
+            //return returnValue;
+
+            var dblValue = double.Parse(value);
+            var intValue = Convert.ToInt64(dblValue);
+            var returnValue = intValue.ToString();
+            return returnValue;
+        }
+
         private CorrectableCbcReport_TypeSummary GetSummary(currCode_Type currCode,
            string assets,
            string capital,
@@ -512,6 +530,17 @@ namespace CBC_V1
            string taxAccrued,
            string taxPaid)
         {
+
+            assets = this.RemoveDecimalFromString(assets);
+            capital = this.RemoveDecimalFromString(capital);
+            earnings = this.RemoveDecimalFromString(earnings);
+            nbEmployees = this.RemoveDecimalFromString(nbEmployees);
+            profitOrLoss = this.RemoveDecimalFromString(profitOrLoss);
+            revenues_Related = this.RemoveDecimalFromString(revenues_Related);
+            revenues_Unrelated = this.RemoveDecimalFromString(revenues_Unrelated);
+            revenues_Total = this.RemoveDecimalFromString(revenues_Total);
+            taxAccrued = this.RemoveDecimalFromString(taxAccrued);
+            taxPaid = this.RemoveDecimalFromString(taxPaid);
 
             var summary = new CorrectableCbcReport_TypeSummary();
             summary.Assets = new MonAmnt_Type()
