@@ -2,6 +2,7 @@
 using CountryByCountryReportV1;
 using CountryByCountryReportV1.models;
 using OfficeOpenXml;
+using OfficeOpenXml.ConditionalFormatting;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -83,6 +84,7 @@ namespace CBC_V1
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message, "Failed");
+                logMessage("File Completed");
 
                 if (File.Exists(destLogFilePath))
                 {
@@ -144,7 +146,6 @@ namespace CBC_V1
             using (var package = new ExcelPackage(xlsxFile))
             {
 
-
                 //gloabalDocSpec = new DocSpec_Type
                 //{
                 //    DocTypeIndic = EnumLookup.GetOECDDocTypeIndicEnumType(GetExcelStringValue(package, "CoverPage", "B16")), //   (S: CoverPage; Cells: B24)
@@ -159,6 +160,8 @@ namespace CBC_V1
 
                 cbcfd.CBC_SARS = GetCBC_SARS_Structure(package);
             }
+
+            logMessage("Data Completed");
 
             var xml = "";
             XmlSerializer xsSubmit = new XmlSerializer(typeof(CountryByCountryDeclarationStructure));
@@ -179,7 +182,7 @@ namespace CBC_V1
             using (StreamWriter file = new StreamWriter(xmlFilePath))
             {
                 file.Write(xml);
-
+                logMessage("File Completed");
             }
 
         }
@@ -230,7 +233,7 @@ namespace CBC_V1
         private MessageSpec_Type GetMessageSpec(ExcelPackage package)
         {
             var messageSpec = new MessageSpec_Type();
-
+            this.receivingCountryClass = new List<ReceivingCountryClass>();
 
             // cbc_oecd.MessageSpec.SendingEntityIN
             messageSpec.TransmittingCountry = CountryCode_Type.ZA;
@@ -462,33 +465,33 @@ namespace CBC_V1
             var cbcReports = new List<CorrectableCbcReport_Type>();
 
             // Some Loop
-            foreach (var receivingCountryClass in receivingCountryClass)
+            foreach (var recCountryCls in receivingCountryClass)
             {
                 var cbcRep = new CorrectableCbcReport_Type();
 
-                cbcRep.ResCountryCode = EnumLookup.GetCountryCodeEnumType(receivingCountryClass.CountryCode);
+                cbcRep.ResCountryCode = EnumLookup.GetCountryCodeEnumType(recCountryCls.CountryCode);
 
-                var docTypeIndic = GetExcelStringValue(package, "SUMMARY", "M" + receivingCountryClass.RowNumber);
-                var docRefId = GetExcelStringValue(package, "SUMMARY", "N" + receivingCountryClass.RowNumber);
-                var corrDocRefId = GetExcelStringValue(package, "SUMMARY", "O" + receivingCountryClass.RowNumber);
+                var docTypeIndic = GetExcelStringValue(package, "SUMMARY", "M" + recCountryCls.RowNumber);
+                var docRefId = GetExcelStringValue(package, "SUMMARY", "N" + recCountryCls.RowNumber);
+                var corrDocRefId = GetExcelStringValue(package, "SUMMARY", "O" + recCountryCls.RowNumber);
                 cbcRep.DocSpec = GetDocSpec(package, docTypeIndic, docRefId, corrDocRefId);
 
 
                 // Summary
                 cbcRep.Summary = GetSummary(currCode_Type.ZAR,
-                    GetExcelStringValue(package, "SUMMARY", "K" + receivingCountryClass.RowNumber),
-                    GetExcelStringValue(package, "SUMMARY", "C" + receivingCountryClass.RowNumber),
-                    GetExcelStringValue(package, "SUMMARY", "D" + receivingCountryClass.RowNumber),
-                    GetExcelStringValue(package, "SUMMARY", "L" + receivingCountryClass.RowNumber),
-                    GetExcelStringValue(package, "SUMMARY", "E" + receivingCountryClass.RowNumber),
-                    GetExcelStringValue(package, "SUMMARY", "G" + receivingCountryClass.RowNumber),
-                    GetExcelStringValue(package, "SUMMARY", "F" + receivingCountryClass.RowNumber),
-                    GetExcelStringValue(package, "SUMMARY", "H" + receivingCountryClass.RowNumber),
-                    GetExcelStringValue(package, "SUMMARY", "J" + receivingCountryClass.RowNumber),
-                    GetExcelStringValue(package, "SUMMARY", "I" + receivingCountryClass.RowNumber));
+                    GetExcelStringValue(package, "SUMMARY", "K" + recCountryCls.RowNumber),
+                    GetExcelStringValue(package, "SUMMARY", "C" + recCountryCls.RowNumber),
+                    GetExcelStringValue(package, "SUMMARY", "D" + recCountryCls.RowNumber),
+                    GetExcelStringValue(package, "SUMMARY", "L" + recCountryCls.RowNumber),
+                    GetExcelStringValue(package, "SUMMARY", "E" + recCountryCls.RowNumber),
+                    GetExcelStringValue(package, "SUMMARY", "G" + recCountryCls.RowNumber),
+                    GetExcelStringValue(package, "SUMMARY", "F" + recCountryCls.RowNumber),
+                    GetExcelStringValue(package, "SUMMARY", "H" + recCountryCls.RowNumber),
+                    GetExcelStringValue(package, "SUMMARY", "J" + recCountryCls.RowNumber),
+                    GetExcelStringValue(package, "SUMMARY", "I" + recCountryCls.RowNumber));
 
                 // Const Entities
-                cbcRep.ConstEntities = GetConstituentEntities(package, receivingCountryClass).ToArray();
+                cbcRep.ConstEntities = GetConstituentEntities(package, recCountryCls).ToArray();
 
                 cbcReports.Add(cbcRep);
             }
