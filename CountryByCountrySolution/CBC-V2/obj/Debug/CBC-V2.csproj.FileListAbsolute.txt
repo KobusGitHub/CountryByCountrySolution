@@ -3,7 +3,6 @@ C:\Git\CountryByCountrySolution\CountryByCountrySolution\CBC-V2\bin\Debug\CBC-V2
 C:\Git\CountryByCountrySolution\CountryByCountrySolution\CBC-V2\bin\Debug\CBC-V2.pdb
 C:\Git\CountryByCountrySolution\CountryByCountrySolution\CBC-V2\bin\Debug\EPPlus.dll
 C:\Git\CountryByCountrySolution\CountryByCountrySolution\CBC-V2\bin\Debug\EPPlus.xml
-C:\Git\CountryByCountrySolution\CountryByCountrySolution\CBC-V2\obj\Debug\CBC-V2.csprojAssemblyReference.cache
 C:\Git\CountryByCountrySolution\CountryByCountrySolution\CBC-V2\obj\Debug\CBC_V2.Properties.Resources.resources
 C:\Git\CountryByCountrySolution\CountryByCountrySolution\CBC-V2\obj\Debug\CBC-V2.csproj.GenerateResource.cache
 C:\Git\CountryByCountrySolution\CountryByCountrySolution\CBC-V2\obj\Debug\CBC-V2.csproj.CoreCompileInputs.cache

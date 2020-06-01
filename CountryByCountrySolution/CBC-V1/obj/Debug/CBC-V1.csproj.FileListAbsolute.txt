@@ -8,5 +8,5 @@ C:\Git\CountryByCountrySolution\CountryByCountrySolution\CBC-V1\obj\Debug\CBC-V1
 C:\Git\CountryByCountrySolution\CountryByCountrySolution\CBC-V1\obj\Debug\CBC-V1.pdb
 C:\Git\CountryByCountrySolution\CountryByCountrySolution\CBC-V1\bin\Debug\EPPlus.dll
 C:\Git\CountryByCountrySolution\CountryByCountrySolution\CBC-V1\bin\Debug\EPPlus.xml
-C:\Git\CountryByCountrySolution\CountryByCountrySolution\CBC-V1\obj\Debug\CBC-V1.csprojAssemblyReference.cache
 C:\Git\CountryByCountrySolution\CountryByCountrySolution\CBC-V1\obj\Debug\CBC-V1.csproj.CopyComplete
+C:\Git\CountryByCountrySolution\CountryByCountrySolution\CBC-V1\obj\Debug\CBC_V1.Form1.resources

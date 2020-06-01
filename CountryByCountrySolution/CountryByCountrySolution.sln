@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CBC-V1", "CBC-V1\CBC-V1.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CBC-V2", "CBC-V2\CBC-V2.csproj", "{C6290011-D5D5-49C3-8D41-A2A9FA32B097}"
 EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "CBC Setup", "CBC Setup\CBC Setup.vdproj", "{0409F379-AC75-4481-B4BA-3F780A8ECD4D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,8 @@ Global
 		{C6290011-D5D5-49C3-8D41-A2A9FA32B097}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C6290011-D5D5-49C3-8D41-A2A9FA32B097}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C6290011-D5D5-49C3-8D41-A2A9FA32B097}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0409F379-AC75-4481-B4BA-3F780A8ECD4D}.Debug|Any CPU.ActiveCfg = Debug
+		{0409F379-AC75-4481-B4BA-3F780A8ECD4D}.Release|Any CPU.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

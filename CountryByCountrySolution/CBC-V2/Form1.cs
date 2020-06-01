@@ -669,7 +669,7 @@ namespace CBC_V2
             catch (Exception ex)
             {
                 MessageBox.Show("Unable to write to log file!", "Log File Failed");
-
+                var excep = ex;
                 canWriteToLogFile = false;
                 throw;
             }
