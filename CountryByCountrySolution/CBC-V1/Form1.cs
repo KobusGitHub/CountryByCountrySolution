@@ -36,11 +36,7 @@ namespace CBC_V1
         {
             InitializeComponent();
             lstLog.Items.Clear();
-            myGuid = Guid.NewGuid();
-
-            cmbReportType.Items.Add("New Report");
-            cmbReportType.Items.Add("Correction");
-            cmbReportType.Items.Add("Regenerate");
+           
         }
 
         private void brnBrowseSource_Click(object sender, EventArgs e)
@@ -59,16 +55,14 @@ namespace CBC_V1
 
         private void btnGenerate_Click(object sender, EventArgs e)
         {
+            myGuid = Guid.NewGuid();
+            lstLog.Items.Clear();
+
+
             var sourceFilePath = txtSource.Text;
             if (!File.Exists(sourceFilePath))
             {
                 MessageBox.Show("Invalid Source File", "Alert");
-                return;
-            }
-
-            if (cmbReportType.SelectedItem == null)
-            {
-                MessageBox.Show("Invalid Report Type", "Alert");
                 return;
             }
 
@@ -763,47 +757,25 @@ namespace CBC_V1
             lstLog.TopIndex = lstLog.Items.Count - 1;
         }
 
-
-        private void btnInfo_Click(object sender, EventArgs e)
-        {
-            if (cmbReportType.SelectedItem == null)
-            {
-                MessageBox.Show("Select a report type and press Information again to find out about it.", "Info");
-                return;
-            }
-
-            if (cmbReportType.SelectedItem.ToString() == "New Report")
-            {
-                MessageBox.Show("Use 'New Report' when you want to create a completely new report with no reference to previous submissions.\n\nNew references will be created in your EXCEL file.", "Info");
-                return;
-            }
-            if (cmbReportType.SelectedItem.ToString() == "Correction")
-            {
-                MessageBox.Show("Use 'Correction' when generating a CBC correction refering to a previouse submittion.\n\nExisting references will be used for the correction references in your EXCEL file.", "Info");
-                return;
-            }
-
-            if (cmbReportType.SelectedItem.ToString() == "Regenerate")
-            {
-                MessageBox.Show("Use 'Regenerate' when you dont want to change references.\n\nNo references will be changed in your EXCEL file.", "Info");
-                return;
-            }
-
-        }
-
         private void SetupReferences(ExcelPackage p)
         {
+            
             var docRefPrefix = GetExcelStringValue(p, "CoverPage", "B29");
 
-           
-            if (cmbReportType.SelectedItem.ToString() == "Regenerate")
-            {
-                return;
-            }
+            // OECD0 -> Resent Data
+            // OECD1 -> New Data
+            // OECD2 -> Corrected Data
+            // OECD3 -> Deletion of Data
+            // OECD10 -> Resent Test Data
+            // OECD11 -> New Test Data
+            // OECD12 -> Corrected Test Data
+            // OECD13 -> Deletion of Test Data
 
 
             // MessageRefID
-            if (cmbReportType.SelectedItem.ToString() == "Correction")
+
+            var messageTypeIndic = GetExcelStringValue(p, "CoverPage", "B4");
+            if (messageTypeIndic == "CBC402") // Corrected Data
             {
                 var docRefValue = GetExcelStringValue(p, "CoverPage", "B2");
                 if (string.IsNullOrEmpty(docRefValue))
@@ -812,10 +784,13 @@ namespace CBC_V1
                     throw new ArgumentException("Correction on empty reference INVALID!");
                 }
                 this.SetExcelStringValue(p, "CoverPage", "B3", docRefValue);
+
             }
-            else
+            else if (messageTypeIndic == "CBC401") // New Data
             {
                 this.SetExcelStringValue(p, "CoverPage", "B3", "");
+                this.SetExcelStringValue(p, "CoverPage", "B4", "CBC401");
+
             }
             this.SetExcelStringValue(p, "CoverPage", "B2", docRefPrefix + myGuid);
 
@@ -823,7 +798,8 @@ namespace CBC_V1
 
 
             // ReportingEnt-DocSpec-DocRefID
-            if (cmbReportType.SelectedItem.ToString() == "Correction")
+            var repEntDocTypeIndic = GetExcelStringValue(p, "CoverPage", "B17"); 
+            if (repEntDocTypeIndic == "OECD2") // Corrected Data
             {
                 var docRefValue = GetExcelStringValue(p, "CoverPage", "B18");
                 if (string.IsNullOrEmpty(docRefValue))
@@ -832,7 +808,8 @@ namespace CBC_V1
                     throw new ArgumentException("Correction on empty reference INVALID!");
                 }
                 this.SetExcelStringValue(p, "CoverPage", "B19", docRefValue);
-            } else
+            }
+            else if(repEntDocTypeIndic == "OECD1") // New Data
             {
                 this.SetExcelStringValue(p, "CoverPage", "B19", "");
             }
@@ -849,7 +826,8 @@ namespace CBC_V1
                     break;
                 }
 
-                if (cmbReportType.SelectedItem.ToString() == "Correction")
+                var docTypeIndec = GetExcelStringValue(p, "SUMMARY", "M" + rowNumber);
+                if (docTypeIndec == "OECD2") // Corrected Data
                 {
                     var docRefValue = GetExcelStringValue(p, "SUMMARY", "N" + rowNumber);
                     if (string.IsNullOrEmpty(docRefValue))
@@ -859,7 +837,7 @@ namespace CBC_V1
                     }
                     this.SetExcelStringValue(p, "SUMMARY", "O" + rowNumber, docRefValue);
                 }
-                else
+                else if (docTypeIndec == "OECD1") // New Data
                 {
                     this.SetExcelStringValue(p, "SUMMARY", "O" + rowNumber, "");
                 }
@@ -879,7 +857,8 @@ namespace CBC_V1
                     break;
                 }
 
-                if (cmbReportType.SelectedItem.ToString() == "Correction")
+                var docTypeIndec = GetExcelStringValue(p, "Additional Information", "B" + rowNumber);
+                if (docTypeIndec == "OECD2") // Corrected Data
                 {
                     var docRefValue = GetExcelStringValue(p, "Additional Information", "C" + rowNumber);
                     if (string.IsNullOrEmpty(docRefValue))
@@ -889,7 +868,7 @@ namespace CBC_V1
                     }
                     this.SetExcelStringValue(p, "Additional Information", "D" + rowNumber, docRefValue);
                 }
-                else
+                else if (docTypeIndec == "OECD1") // New Data
                 {
                     this.SetExcelStringValue(p, "Additional Information", "D" + rowNumber, "");
                 }

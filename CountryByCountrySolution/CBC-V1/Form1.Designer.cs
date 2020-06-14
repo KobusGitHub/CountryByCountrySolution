@@ -42,9 +42,6 @@
             this.txtDestFileName = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
             this.lstLog = new System.Windows.Forms.ListBox();
-            this.cmbReportType = new System.Windows.Forms.ComboBox();
-            this.label5 = new System.Windows.Forms.Label();
-            this.btnInfo = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // btnGenerate
@@ -52,7 +49,7 @@
             this.btnGenerate.BackColor = System.Drawing.Color.LightSteelBlue;
             this.btnGenerate.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnGenerate.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnGenerate.Location = new System.Drawing.Point(194, 255);
+            this.btnGenerate.Location = new System.Drawing.Point(194, 196);
             this.btnGenerate.Name = "btnGenerate";
             this.btnGenerate.Size = new System.Drawing.Size(146, 23);
             this.btnGenerate.TabIndex = 0;
@@ -173,54 +170,18 @@
             // 
             this.lstLog.FormattingEnabled = true;
             this.lstLog.HorizontalScrollbar = true;
-            this.lstLog.Location = new System.Drawing.Point(24, 299);
+            this.lstLog.Location = new System.Drawing.Point(24, 240);
             this.lstLog.Name = "lstLog";
             this.lstLog.SelectionMode = System.Windows.Forms.SelectionMode.None;
             this.lstLog.Size = new System.Drawing.Size(488, 264);
             this.lstLog.TabIndex = 10;
-            // 
-            // cmbReportType
-            // 
-            this.cmbReportType.FormattingEnabled = true;
-            this.cmbReportType.Location = new System.Drawing.Point(181, 201);
-            this.cmbReportType.Name = "cmbReportType";
-            this.cmbReportType.Size = new System.Drawing.Size(233, 21);
-            this.cmbReportType.TabIndex = 11;
-            // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Font = new System.Drawing.Font("Verdana", 8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label5.ForeColor = System.Drawing.Color.SteelBlue;
-            this.label5.Location = new System.Drawing.Point(56, 204);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(118, 13);
-            this.label5.TabIndex = 12;
-            this.label5.Text = "CBC Report Type:";
-            // 
-            // btnInfo
-            // 
-            this.btnInfo.BackColor = System.Drawing.Color.LightSteelBlue;
-            this.btnInfo.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnInfo.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnInfo.ForeColor = System.Drawing.Color.Black;
-            this.btnInfo.Location = new System.Drawing.Point(420, 199);
-            this.btnInfo.Name = "btnInfo";
-            this.btnInfo.Size = new System.Drawing.Size(92, 23);
-            this.btnInfo.TabIndex = 13;
-            this.btnInfo.Text = "Information";
-            this.btnInfo.UseVisualStyleBackColor = false;
-            this.btnInfo.Click += new System.EventHandler(this.btnInfo_Click);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Gainsboro;
-            this.ClientSize = new System.Drawing.Size(540, 586);
-            this.Controls.Add(this.btnInfo);
-            this.Controls.Add(this.label5);
-            this.Controls.Add(this.cmbReportType);
+            this.ClientSize = new System.Drawing.Size(540, 532);
             this.Controls.Add(this.lstLog);
             this.Controls.Add(this.txtDestFileName);
             this.Controls.Add(this.label4);
@@ -260,9 +221,6 @@
         private System.Windows.Forms.TextBox txtDestFileName;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.ListBox lstLog;
-        private System.Windows.Forms.ComboBox cmbReportType;
-        private System.Windows.Forms.Label label5;
-        private System.Windows.Forms.Button btnInfo;
     }
 }
 
