@@ -27,12 +27,20 @@ namespace CBC_V1
         string xmlFilePath = null;
         string destLogFilePath = null;
         bool canWriteToLogFile = true;
+        Guid myGuid;
+
         List<ReceivingCountryClass> receivingCountryClass = new List<ReceivingCountryClass>();
         List<ConstituentEntitiesSummary> ConstituentEntitiesSummaries = new List<ConstituentEntitiesSummary>();
 
         public Form1()
         {
             InitializeComponent();
+            lstLog.Items.Clear();
+            myGuid = Guid.NewGuid();
+
+            cmbReportType.Items.Add("New Report");
+            cmbReportType.Items.Add("Correction");
+            cmbReportType.Items.Add("Regenerate");
         }
 
         private void brnBrowseSource_Click(object sender, EventArgs e)
@@ -55,6 +63,13 @@ namespace CBC_V1
             if (!File.Exists(sourceFilePath))
             {
                 MessageBox.Show("Invalid Source File", "Alert");
+                return;
+            }
+
+            if (cmbReportType.SelectedItem == null)
+            {
+                MessageBox.Show("Invalid Report Type", "Alert");
+                return;
             }
 
             var destFileName = txtDestFileName.Text;
@@ -69,7 +84,7 @@ namespace CBC_V1
                 File.Delete(destFilePath);
             }
 
-            destLogFilePath = txtDestFolder.Text + "\\" + destFileName.Replace(".xml", "_Log.log");
+            destLogFilePath = txtDestFolder.Text + "\\" + destFileName.Replace(".xml", "_" + myGuid + "_Log.log");
             if (File.Exists(destLogFilePath))
             {
                 File.Delete(destLogFilePath);
@@ -78,12 +93,17 @@ namespace CBC_V1
             xlsxFile = new FileInfo(sourceFilePath);
             xmlFilePath = destFilePath;
 
+            var newExcelFilePath = txtDestFolder.Text + "\\" + destFileName.Replace(".xml", "_" + myGuid + xlsxFile.Extension);
+            var newxlsxFile = new FileInfo(newExcelFilePath);
+
             try
             {
-                this.StartWork();
+                this.StartWork(newxlsxFile);
             }
             catch (Exception ex)
             {
+                AddMessageToListBox("Generating XML Failed");
+
                 MessageBox.Show(ex.Message, "Failed");
                 logMessage("File Completed");
 
@@ -96,8 +116,10 @@ namespace CBC_V1
                 return;
             }
 
+            AddMessageToListBox("Generating XML Success");
 
             MessageBox.Show("File created successfully.", "Success");
+
 
             if (File.Exists(xmlFilePath))
             {
@@ -107,32 +129,27 @@ namespace CBC_V1
         }
 
 
+
         public DocSpec_Type GetDocSpec(ExcelPackage package, string docTypeIndic, string docRefId, string corrDocRefId)
         {
-            DocSpec_Type docSpec;
+            DocSpec_Type docSpec = new DocSpec_Type
+            {
+                DocTypeIndic = EnumLookup.GetOECDDocTypeIndicEnumType(docTypeIndic),
+                DocRefId = docRefId,
+                CorrDocRefId = "",
+                CorrMessageRefId = ""
+            };
 
-            if (string.IsNullOrEmpty(corrDocRefId))
+
+            if (!string.IsNullOrEmpty(corrDocRefId))
             {
-                docSpec = new DocSpec_Type
-                {
-                    DocTypeIndic = EnumLookup.GetOECDDocTypeIndicEnumType(docTypeIndic),
-                    DocRefId = docRefId,
-                };
-            }
-            else
-            {
-                docSpec = new DocSpec_Type
-                {
-                    DocTypeIndic = EnumLookup.GetOECDDocTypeIndicEnumType(docTypeIndic),
-                    DocRefId = docRefId,
-                    CorrDocRefId = "",
-                    CorrMessageRefId = ""
-                };
+                docSpec.CorrDocRefId = corrDocRefId;
+                docSpec.CorrMessageRefId = ""; // TODO
             }
 
             return docSpec;
         }
-        private void StartWork()
+        private void StartWork(FileInfo newExcelFile)
         {
             // xsd.exe CbcXML_v1.0.1.xsd /Classes oecdtypes_v4.1.xsd /Classes isocbctypes_v1.0.1.xsd
 
@@ -146,20 +163,17 @@ namespace CBC_V1
             ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
             using (var package = new ExcelPackage(xlsxFile))
             {
+                this.SetupReferences(package);
 
-                //gloabalDocSpec = new DocSpec_Type
-                //{
-                //    DocTypeIndic = EnumLookup.GetOECDDocTypeIndicEnumType(GetExcelStringValue(package, "CoverPage", "B16")), //   (S: CoverPage; Cells: B24)
-                //    DocRefId = GetExcelStringValue(package, "CoverPage", "B17"), // "ZA2018DOCBAW", //   (S: CoverPage; Cells: B25)
-                //    CorrDocRefId = "",
-                //    CorrMessageRefId = ""
-                //};
 
                 cbcfd.CBC_OECD.version = "1.0";
                 cbcfd.CBC_OECD.MessageSpec = GetMessageSpec(package);
                 cbcfd.CBC_OECD.CbcBody = GetCbcBodies(package).ToArray();
 
                 cbcfd.CBC_SARS = GetCBC_SARS_Structure(package);
+
+
+                package.SaveAs(newExcelFile);
             }
 
             logMessage("Data Completed");
@@ -404,15 +418,15 @@ namespace CBC_V1
             //}
             //else
             //{
-                var adr = string.Join(",", address);
-                var addr = new Address_Type()
-                {
-                    CountryCode = addressCountryCode,
-                    Items = new string[] { adr },
-                    legalAddressType = legalAddressType,
-                    legalAddressTypeSpecified = true
-                };
-                entity.Address = new Address_Type[] { addr };
+            var adr = string.Join(",", address);
+            var addr = new Address_Type()
+            {
+                CountryCode = addressCountryCode,
+                Items = new string[] { adr },
+                legalAddressType = legalAddressType,
+                legalAddressTypeSpecified = true
+            };
+            entity.Address = new Address_Type[] { addr };
             //}
 
 
@@ -663,12 +677,19 @@ namespace CBC_V1
         }
 
 
+        private void SetExcelStringValue(ExcelPackage package, string workbook, string cell, string value)
+        {
 
+            logMessage(string.Format("WRITE: Worksheet: '{0}', Cell '{1}', Value '{2}'", workbook, cell, value));
+
+
+            package.Workbook.Worksheets[workbook].Cells[cell].Value = value;
+        }
 
         private string GetExcelStringValue(ExcelPackage package, string workbook, string cell)
         {
 
-            logMessage(string.Format("Worksheet: '{0}', Cell '{1}', Converting to a String", workbook, cell));
+            logMessage(string.Format("READ: Worksheet: '{0}', Cell '{1}', Converting to a String", workbook, cell));
 
             var cellObject = package.Workbook.Worksheets[workbook].Cells[cell].Value;
             if (cellObject == null)
@@ -680,7 +701,7 @@ namespace CBC_V1
 
         private int? GetExcelIntValue(ExcelPackage package, string workbook, string cell)
         {
-            logMessage(string.Format("Worksheet: '{0}', Cell '{1}', Converting to a INTEGER", workbook, cell));
+            logMessage(string.Format("READ: Worksheet: '{0}', Cell '{1}', Converting to a INTEGER", workbook, cell));
 
             var cellObject = package.Workbook.Worksheets[workbook].Cells[cell].Value;
             if (cellObject == null)
@@ -692,7 +713,7 @@ namespace CBC_V1
 
         private double? GetExcelDoubleValue(ExcelPackage package, string workbook, string cell)
         {
-            logMessage(string.Format("Worksheet: '{0}', Cell '{1}', Converting to a Double", workbook, cell));
+            logMessage(string.Format("READ: Worksheet: '{0}', Cell '{1}', Converting to a Double", workbook, cell));
 
             var cellObject = package.Workbook.Worksheets[workbook].Cells[cell].Value;
             if (cellObject == null)
@@ -712,6 +733,8 @@ namespace CBC_V1
 
             try
             {
+                AddMessageToListBox(message);
+
                 using (StreamWriter w = File.AppendText(destLogFilePath))
                 {
                     w.WriteLine(message);
@@ -726,6 +749,132 @@ namespace CBC_V1
             }
         }
 
+        private void AddMessageToListBox(string message)
+        {
+            lstLog.Items.Add(message);
+            // scoll to bottom
+            lstLog.TopIndex = lstLog.Items.Count - 1;
+        }
+
+
+        private void btnInfo_Click(object sender, EventArgs e)
+        {
+            if (cmbReportType.SelectedItem == null)
+            {
+                MessageBox.Show("Select a report type and press Information again to find out about it.", "Info");
+                return;
+            }
+
+            if (cmbReportType.SelectedItem.ToString() == "New Report")
+            {
+                MessageBox.Show("Use 'New Report' when you want to create a completely new report with no reference to previous submissions.\n\nNew references will be created in your EXCEL file.", "Info");
+                return;
+            }
+            if (cmbReportType.SelectedItem.ToString() == "Correction")
+            {
+                MessageBox.Show("Use 'Correction' when generating a CBC correction refering to a previouse submittion.\n\nExisting references will be used for the correction references in your EXCEL file.", "Info");
+                return;
+            }
+
+            if (cmbReportType.SelectedItem.ToString() == "Regenerate")
+            {
+                MessageBox.Show("Use 'Regenerate' when you dont want to change references.\n\nNo references will be changed in your EXCEL file.", "Info");
+                return;
+            }
+
+        }
+
+        private void SetupReferences(ExcelPackage p)
+        {
+            var docRefPrefix = GetExcelStringValue(p, "CoverPage", "B28");
+
+            // TODO MessageRefId and CorrMessageRefId
+
+            if (cmbReportType.SelectedItem.ToString() == "Regenerate")
+            {
+                return;
+            }
+
+
+
+            // ReportingEnt-DocSpec-DocRefID
+            if (cmbReportType.SelectedItem.ToString() == "Correction")
+            {
+                var docRefValue = GetExcelStringValue(p, "CoverPage", "B17");
+                if (string.IsNullOrEmpty(docRefValue))
+                {
+                    logMessage("Correction on empty reference INVALID!");
+                    throw new ArgumentException("Correction on empty reference INVALID!");
+                }
+                this.SetExcelStringValue(p, "CoverPage", "B18", docRefValue);
+            } else
+            {
+                this.SetExcelStringValue(p, "CoverPage", "B18", "");
+            }
+            this.SetExcelStringValue(p, "CoverPage", "B17", docRefPrefix + Guid.NewGuid());
+           
+
+            // SUMMARY
+            var rowNumber = 2;
+            while (true)
+            {
+                var cellValue = GetExcelStringValue(p, "SUMMARY", "A" + rowNumber);
+                if (string.IsNullOrEmpty(cellValue))
+                {
+                    break;
+                }
+
+                if (cmbReportType.SelectedItem.ToString() == "Correction")
+                {
+                    var docRefValue = GetExcelStringValue(p, "SUMMARY", "N" + rowNumber);
+                    if (string.IsNullOrEmpty(docRefValue))
+                    {
+                        logMessage("Correction on empty reference INVALID!");
+                        throw new ArgumentException("Correction on empty reference INVALID!");
+                    }
+                    this.SetExcelStringValue(p, "SUMMARY", "O" + rowNumber, docRefValue);
+                }
+                else
+                {
+                    this.SetExcelStringValue(p, "SUMMARY", "O" + rowNumber, "");
+                }
+                this.SetExcelStringValue(p, "SUMMARY", "N" + rowNumber, docRefPrefix + Guid.NewGuid());
+
+                rowNumber++;
+            }
+
+
+            // Additional Information
+            rowNumber = 2;
+            while (true)
+            {
+                var cellValue = GetExcelStringValue(p, "Additional Information", "A" + rowNumber);
+                if (string.IsNullOrEmpty(cellValue))
+                {
+                    break;
+                }
+
+                if (cmbReportType.SelectedItem.ToString() == "Correction")
+                {
+                    var docRefValue = GetExcelStringValue(p, "Additional Information", "C" + rowNumber);
+                    if (string.IsNullOrEmpty(docRefValue))
+                    {
+                        logMessage("Correction on empty reference INVALID!");
+                        throw new ArgumentException("Correction on empty reference INVALID!");
+                    }
+                    this.SetExcelStringValue(p, "Additional Information", "D" + rowNumber, docRefValue);
+                }
+                else
+                {
+                    this.SetExcelStringValue(p, "Additional Information", "D" + rowNumber, "");
+                }
+                this.SetExcelStringValue(p, "Additional Information", "C" + rowNumber, docRefPrefix + Guid.NewGuid());
+
+                rowNumber++;
+            }
+
+
+        }
 
     }
 }

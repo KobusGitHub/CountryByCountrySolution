@@ -10,3 +10,4 @@ C:\Git\CountryByCountrySolution\CountryByCountrySolution\CBC-V1\bin\Debug\EPPlus
 C:\Git\CountryByCountrySolution\CountryByCountrySolution\CBC-V1\bin\Debug\EPPlus.xml
 C:\Git\CountryByCountrySolution\CountryByCountrySolution\CBC-V1\obj\Debug\CBC-V1.csproj.CopyComplete
 C:\Git\CountryByCountrySolution\CountryByCountrySolution\CBC-V1\obj\Debug\CBC_V1.Form1.resources
+C:\Git\CountryByCountrySolution\CountryByCountrySolution\CBC-V1\obj\Debug\CBC-V1.csprojAssemblyReference.cache

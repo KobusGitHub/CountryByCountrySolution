@@ -41,6 +41,10 @@
             this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
             this.txtDestFileName = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
+            this.lstLog = new System.Windows.Forms.ListBox();
+            this.cmbReportType = new System.Windows.Forms.ComboBox();
+            this.label5 = new System.Windows.Forms.Label();
+            this.btnInfo = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // btnGenerate
@@ -48,7 +52,7 @@
             this.btnGenerate.BackColor = System.Drawing.Color.LightSteelBlue;
             this.btnGenerate.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnGenerate.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnGenerate.Location = new System.Drawing.Point(194, 201);
+            this.btnGenerate.Location = new System.Drawing.Point(194, 255);
             this.btnGenerate.Name = "btnGenerate";
             this.btnGenerate.Size = new System.Drawing.Size(146, 23);
             this.btnGenerate.TabIndex = 0;
@@ -75,7 +79,7 @@
             this.txtSource.Location = new System.Drawing.Point(181, 62);
             this.txtSource.Name = "txtSource";
             this.txtSource.ReadOnly = true;
-            this.txtSource.Size = new System.Drawing.Size(250, 21);
+            this.txtSource.Size = new System.Drawing.Size(233, 21);
             this.txtSource.TabIndex = 2;
             // 
             // brnBrowseSource
@@ -84,9 +88,9 @@
             this.brnBrowseSource.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.brnBrowseSource.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.brnBrowseSource.ForeColor = System.Drawing.Color.Black;
-            this.brnBrowseSource.Location = new System.Drawing.Point(437, 60);
+            this.brnBrowseSource.Location = new System.Drawing.Point(420, 62);
             this.brnBrowseSource.Name = "brnBrowseSource";
-            this.brnBrowseSource.Size = new System.Drawing.Size(75, 23);
+            this.brnBrowseSource.Size = new System.Drawing.Size(92, 23);
             this.brnBrowseSource.TabIndex = 3;
             this.brnBrowseSource.Text = "Browse...";
             this.brnBrowseSource.UseVisualStyleBackColor = false;
@@ -98,9 +102,9 @@
             this.btnBrowseDest.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnBrowseDest.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnBrowseDest.ForeColor = System.Drawing.Color.Black;
-            this.btnBrowseDest.Location = new System.Drawing.Point(437, 106);
+            this.btnBrowseDest.Location = new System.Drawing.Point(420, 105);
             this.btnBrowseDest.Name = "btnBrowseDest";
-            this.btnBrowseDest.Size = new System.Drawing.Size(75, 23);
+            this.btnBrowseDest.Size = new System.Drawing.Size(92, 23);
             this.btnBrowseDest.TabIndex = 6;
             this.btnBrowseDest.Text = "Browse...";
             this.btnBrowseDest.UseVisualStyleBackColor = false;
@@ -114,7 +118,7 @@
             this.txtDestFolder.Location = new System.Drawing.Point(181, 108);
             this.txtDestFolder.Name = "txtDestFolder";
             this.txtDestFolder.ReadOnly = true;
-            this.txtDestFolder.Size = new System.Drawing.Size(250, 21);
+            this.txtDestFolder.Size = new System.Drawing.Size(233, 21);
             this.txtDestFolder.TabIndex = 5;
             // 
             // label2
@@ -150,7 +154,7 @@
             this.txtDestFileName.ForeColor = System.Drawing.Color.Black;
             this.txtDestFileName.Location = new System.Drawing.Point(181, 153);
             this.txtDestFileName.Name = "txtDestFileName";
-            this.txtDestFileName.Size = new System.Drawing.Size(250, 21);
+            this.txtDestFileName.Size = new System.Drawing.Size(233, 21);
             this.txtDestFileName.TabIndex = 9;
             this.txtDestFileName.Text = "CBC";
             // 
@@ -165,12 +169,59 @@
             this.label4.TabIndex = 8;
             this.label4.Text = "Destination File Name:";
             // 
+            // lstLog
+            // 
+            this.lstLog.FormattingEnabled = true;
+            this.lstLog.HorizontalScrollbar = true;
+            this.lstLog.Location = new System.Drawing.Point(24, 299);
+            this.lstLog.Name = "lstLog";
+            this.lstLog.SelectionMode = System.Windows.Forms.SelectionMode.None;
+            this.lstLog.Size = new System.Drawing.Size(488, 264);
+            this.lstLog.TabIndex = 10;
+            // 
+            // cmbReportType
+            // 
+            this.cmbReportType.FormattingEnabled = true;
+            this.cmbReportType.Location = new System.Drawing.Point(181, 201);
+            this.cmbReportType.Name = "cmbReportType";
+            this.cmbReportType.Size = new System.Drawing.Size(233, 21);
+            this.cmbReportType.TabIndex = 11;
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Font = new System.Drawing.Font("Verdana", 8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label5.ForeColor = System.Drawing.Color.SteelBlue;
+            this.label5.Location = new System.Drawing.Point(56, 204);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(118, 13);
+            this.label5.TabIndex = 12;
+            this.label5.Text = "CBC Report Type:";
+            // 
+            // btnInfo
+            // 
+            this.btnInfo.BackColor = System.Drawing.Color.LightSteelBlue;
+            this.btnInfo.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnInfo.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnInfo.ForeColor = System.Drawing.Color.Black;
+            this.btnInfo.Location = new System.Drawing.Point(420, 199);
+            this.btnInfo.Name = "btnInfo";
+            this.btnInfo.Size = new System.Drawing.Size(92, 23);
+            this.btnInfo.TabIndex = 13;
+            this.btnInfo.Text = "Information";
+            this.btnInfo.UseVisualStyleBackColor = false;
+            this.btnInfo.Click += new System.EventHandler(this.btnInfo_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Gainsboro;
-            this.ClientSize = new System.Drawing.Size(540, 250);
+            this.ClientSize = new System.Drawing.Size(540, 586);
+            this.Controls.Add(this.btnInfo);
+            this.Controls.Add(this.label5);
+            this.Controls.Add(this.cmbReportType);
+            this.Controls.Add(this.lstLog);
             this.Controls.Add(this.txtDestFileName);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.label3);
@@ -208,6 +259,10 @@
         private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;
         private System.Windows.Forms.TextBox txtDestFileName;
         private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.ListBox lstLog;
+        private System.Windows.Forms.ComboBox cmbReportType;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.Button btnInfo;
     }
 }
 
