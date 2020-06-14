@@ -130,22 +130,25 @@ namespace CBC_V1
 
 
 
-        public DocSpec_Type GetDocSpec(ExcelPackage package, string docTypeIndic, string docRefId, string corrDocRefId)
+        public DocSpec_Type GetDocSpec(ExcelPackage package, string docTypeIndic, string docRefId, string corrDocRefId, string corrMessageRefId)
         {
             DocSpec_Type docSpec = new DocSpec_Type
             {
                 DocTypeIndic = EnumLookup.GetOECDDocTypeIndicEnumType(docTypeIndic),
                 DocRefId = docRefId,
-                CorrDocRefId = "",
-                CorrMessageRefId = ""
             };
 
 
             if (!string.IsNullOrEmpty(corrDocRefId))
             {
                 docSpec.CorrDocRefId = corrDocRefId;
-                docSpec.CorrMessageRefId = ""; // TODO
             }
+
+            if (!string.IsNullOrEmpty(corrMessageRefId))
+            {
+                docSpec.CorrMessageRefId = corrMessageRefId;
+            }
+
 
             return docSpec;
         }
@@ -209,21 +212,21 @@ namespace CBC_V1
 
             sarsStructure.ContactDetails = new CBC_SARS_StructureContactDetails
             {
-                Surname = this.GetExcelStringValue(package, "CoverPage", "B21"),
-                FirstNames = this.GetExcelStringValue(package, "CoverPage", "B22"),
-                BusTelNo1 = this.GetExcelStringValue(package, "CoverPage", "B23"),
-                BusTelNo2 = this.GetExcelStringValue(package, "CoverPage", "B24"),
-                CellNo = this.GetExcelStringValue(package, "CoverPage", "B25"),
-                EmailAddress = this.GetExcelStringValue(package, "CoverPage", "B26")
+                Surname = this.GetExcelStringValue(package, "CoverPage", "B22"),
+                FirstNames = this.GetExcelStringValue(package, "CoverPage", "B23"),
+                BusTelNo1 = this.GetExcelStringValue(package, "CoverPage", "B24"),
+                BusTelNo2 = this.GetExcelStringValue(package, "CoverPage", "B25"),
+                CellNo = this.GetExcelStringValue(package, "CoverPage", "B26"),
+                EmailAddress = this.GetExcelStringValue(package, "CoverPage", "B27")
             };
 
-            sarsStructure.DeclarationDate = DateTime.Parse(this.GetExcelStringValue(package, "CoverPage", "B20"));
+            sarsStructure.DeclarationDate = DateTime.Parse(this.GetExcelStringValue(package, "CoverPage", "B21"));
             sarsStructure.DeclarationDateSpecified = true;
 
             sarsStructure.TotalConsolidatedMNEGroupRevenue = new FinancialAmtWithCurrencyStructure()
             {
                 CurrencyCode = "ZAR",
-                Amount = Convert.ToInt64(this.GetExcelDoubleValue(package, "CoverPage", "B27").Value)
+                Amount = Convert.ToInt64(this.GetExcelDoubleValue(package, "CoverPage", "B28").Value)
             };
             sarsStructure.NoOfTaxJurisdictions = Convert.ToInt16(this.receivingCountryClass.Count());
 
@@ -286,21 +289,22 @@ namespace CBC_V1
             messageSpec.LanguageSpecified = true;
 
             // Warning
-            messageSpec.Warning = GetExcelStringValue(package, "CoverPage", "B19");
+            messageSpec.Warning = GetExcelStringValue(package, "CoverPage", "B20");
 
             // Contact
             messageSpec.Contact = GetExcelStringValue(package, "CoverPage", "B1"); // (S: CoverPage; Cells:B1)
 
             // MessageRefId
             messageSpec.MessageRefId = GetExcelStringValue(package, "CoverPage", "B2");// "ZA2019BAW"; // (S: CoverPage; Cells:B2)
+            messageSpec.CorrMessageRefId = new string[] { GetExcelStringValue(package, "CoverPage", "B3") };
 
             // MessageTypeIndic
-            messageSpec.MessageTypeIndic = EnumLookup.GetCbcMessageTypeIndicEnumType(GetExcelStringValue(package, "CoverPage", "B3")); // CbcMessageTypeIndic_EnumType.CBC401; //  (S: CoverPage; Cells:B3)
+            messageSpec.MessageTypeIndic = EnumLookup.GetCbcMessageTypeIndicEnumType(GetExcelStringValue(package, "CoverPage", "B4")); // CbcMessageTypeIndic_EnumType.CBC401; //  (S: CoverPage; Cells:B3)
             messageSpec.MessageTypeIndicSpecified = true;
 
             // ReportingPeriod
-            // messageSpec.ReportingPeriod = new DateTime(GetExcelIntValue(package, "CoverPage", "B4").Value, GetExcelIntValue(package, "CoverPage", "B5").Value, GetExcelIntValue(package, "CoverPage", "B6").Value); // new DateTime(2019, 9, 30);  //  (S: CoverPage; Cells:B4, B5, B6)
-            messageSpec.ReportingPeriod = DateTime.Parse(GetExcelStringValue(package, "CoverPage", "B4"));
+            // messageSpec.ReportingPeriod = new DateTime(GetExcelIntValue(package, "CoverPage", "B5").Value, GetExcelIntValue(package, "CoverPage", "B6").Value, GetExcelIntValue(package, "CoverPage", "B7").Value); // new DateTime(2019, 9, 30);  //  (S: CoverPage; Cells:B4, B5, B6)
+            messageSpec.ReportingPeriod = DateTime.Parse(GetExcelStringValue(package, "CoverPage", "B5"));
 
             messageSpec.Timestamp = DateTime.Now;
 
@@ -337,24 +341,25 @@ namespace CBC_V1
             var repEnt = new CorrectableReportingEntity_Type();
 
 
-            repEnt.Entity = GetOrganisationPartyType(EnumLookup.GetCountryCodeEnumType(GetExcelStringValue(package, "CoverPage", "B5")), // CountryCode_Type.ZA, // (S: CoverPage; Cells: B7)
-                EnumLookup.GetCountryCodeEnumType(GetExcelStringValue(package, "CoverPage", "B6")), // CountryCode_Type.ZA, // (S: CoverPage; Cells: B8)
-                GetExcelStringValue(package, "CoverPage", "B7"), //"9000051715", // (S: CoverPage; Cells: B9)
-                EnumLookup.GetCountryCodeEnumType(GetExcelStringValue(package, "CoverPage", "B8")), // CountryCode_Type.ZA, // (S: CoverPage; Cells: B10)
-                GetExcelStringValue(package, "CoverPage", "B9"), //"1918/000095/06", // (S: CoverPage; Cells: B11)
-                GetExcelStringValue(package, "CoverPage", "B10"), //"Barloworld Limited", // (S: CoverPage; Cells: B12)
-                EnumLookup.GetCountryCodeEnumType(GetExcelStringValue(package, "CoverPage", "B11")), // CountryCode_Type.ZA, // (S: CoverPage; Cells: B13)
-                GetExcelStringValue(package, "CoverPage", "B12").Split(';'), // new object[] { "61 Katherine Street", "Sandton", "2196" }, // (S: CoverPage; Cells: B14) "61 Katherine Street;Sandton;2196" (Split on ;)
-                EnumLookup.GetOECDLegalAddressTypeEnumType(GetExcelStringValue(package, "CoverPage", "B13"))); //OECDLegalAddressType_EnumType.OECD304);// (S: CoverPage; Cells: B15)
+            repEnt.Entity = GetOrganisationPartyType(EnumLookup.GetCountryCodeEnumType(GetExcelStringValue(package, "CoverPage", "B6")), // CountryCode_Type.ZA, // (S: CoverPage; Cells: B7)
+                EnumLookup.GetCountryCodeEnumType(GetExcelStringValue(package, "CoverPage", "B7")), // CountryCode_Type.ZA, // (S: CoverPage; Cells: B8)
+                GetExcelStringValue(package, "CoverPage", "B8"), //"9000051715", // (S: CoverPage; Cells: B9)
+                EnumLookup.GetCountryCodeEnumType(GetExcelStringValue(package, "CoverPage", "B9")), // CountryCode_Type.ZA, // (S: CoverPage; Cells: B10)
+                GetExcelStringValue(package, "CoverPage", "B10"), //"1918/000095/06", // (S: CoverPage; Cells: B11)
+                GetExcelStringValue(package, "CoverPage", "B11"), //"Barloworld Limited", // (S: CoverPage; Cells: B12)
+                EnumLookup.GetCountryCodeEnumType(GetExcelStringValue(package, "CoverPage", "B12")), // CountryCode_Type.ZA, // (S: CoverPage; Cells: B13)
+                GetExcelStringValue(package, "CoverPage", "B13").Split(';'), // new object[] { "61 Katherine Street", "Sandton", "2196" }, // (S: CoverPage; Cells: B14) "61 Katherine Street;Sandton;2196" (Split on ;)
+                EnumLookup.GetOECDLegalAddressTypeEnumType(GetExcelStringValue(package, "CoverPage", "B14"))); //OECDLegalAddressType_EnumType.OECD304);// (S: CoverPage; Cells: B15)
 
 
-            repEnt.ReportingRole = EnumLookup.GetCbcReportingRoleEnumType(GetExcelStringValue(package, "CoverPage", "B15")); // CbcReportingRole_EnumType.CBC701; // (S: CoverPage; Cells: B17)
+            repEnt.ReportingRole = EnumLookup.GetCbcReportingRoleEnumType(GetExcelStringValue(package, "CoverPage", "B16")); // CbcReportingRole_EnumType.CBC701; // (S: CoverPage; Cells: B17)
 
 
-            var docTypeIndic = GetExcelStringValue(package, "CoverPage", "B16");
-            var docRefId = GetExcelStringValue(package, "CoverPage", "B17");
-            var corrDocRefId = GetExcelStringValue(package, "CoverPage", "B18");
-            repEnt.DocSpec = GetDocSpec(package, docTypeIndic, docRefId, corrDocRefId);
+            var docTypeIndic = GetExcelStringValue(package, "CoverPage", "B17");
+            var docRefId = GetExcelStringValue(package, "CoverPage", "B18");
+            var corrDocRefId = GetExcelStringValue(package, "CoverPage", "B19");
+            var corrMessageRefId = GetExcelStringValue(package, "CoverPage", "B3");
+            repEnt.DocSpec = GetDocSpec(package, docTypeIndic, docRefId, corrDocRefId, corrMessageRefId);
 
             return repEnt;
         }
@@ -453,7 +458,8 @@ namespace CBC_V1
                 var docTypeIndic = GetExcelStringValue(package, "Additional Information", "B" + rowNumber);
                 var docRefId = GetExcelStringValue(package, "Additional Information", "C" + rowNumber);
                 var corrDocRefId = GetExcelStringValue(package, "Additional Information", "D" + rowNumber);
-                info.DocSpec = GetDocSpec(package, docTypeIndic, docRefId, corrDocRefId);
+                var corrMessageRefId = GetExcelStringValue(package, "CoverPage", "B3");
+                info.DocSpec = GetDocSpec(package, docTypeIndic, docRefId, corrDocRefId, corrMessageRefId);
 
                 if (cellValue.Length >= 4000)
                 {
@@ -489,7 +495,8 @@ namespace CBC_V1
                 var docTypeIndic = GetExcelStringValue(package, "SUMMARY", "M" + recCountryCls.RowNumber);
                 var docRefId = GetExcelStringValue(package, "SUMMARY", "N" + recCountryCls.RowNumber);
                 var corrDocRefId = GetExcelStringValue(package, "SUMMARY", "O" + recCountryCls.RowNumber);
-                cbcRep.DocSpec = GetDocSpec(package, docTypeIndic, docRefId, corrDocRefId);
+                var corrMessageRefId = GetExcelStringValue(package, "CoverPage", "B3");
+                cbcRep.DocSpec = GetDocSpec(package, docTypeIndic, docRefId, corrDocRefId, corrMessageRefId);
 
 
                 // Summary
@@ -786,32 +793,50 @@ namespace CBC_V1
 
         private void SetupReferences(ExcelPackage p)
         {
-            var docRefPrefix = GetExcelStringValue(p, "CoverPage", "B28");
+            var docRefPrefix = GetExcelStringValue(p, "CoverPage", "B29");
 
-            // TODO MessageRefId and CorrMessageRefId
-
+           
             if (cmbReportType.SelectedItem.ToString() == "Regenerate")
             {
                 return;
             }
 
 
-
-            // ReportingEnt-DocSpec-DocRefID
+            // MessageRefID
             if (cmbReportType.SelectedItem.ToString() == "Correction")
             {
-                var docRefValue = GetExcelStringValue(p, "CoverPage", "B17");
+                var docRefValue = GetExcelStringValue(p, "CoverPage", "B2");
                 if (string.IsNullOrEmpty(docRefValue))
                 {
                     logMessage("Correction on empty reference INVALID!");
                     throw new ArgumentException("Correction on empty reference INVALID!");
                 }
-                this.SetExcelStringValue(p, "CoverPage", "B18", docRefValue);
+                this.SetExcelStringValue(p, "CoverPage", "B3", docRefValue);
+            }
+            else
+            {
+                this.SetExcelStringValue(p, "CoverPage", "B3", "");
+            }
+            this.SetExcelStringValue(p, "CoverPage", "B2", docRefPrefix + myGuid);
+
+
+
+
+            // ReportingEnt-DocSpec-DocRefID
+            if (cmbReportType.SelectedItem.ToString() == "Correction")
+            {
+                var docRefValue = GetExcelStringValue(p, "CoverPage", "B18");
+                if (string.IsNullOrEmpty(docRefValue))
+                {
+                    logMessage("Correction on empty reference INVALID!");
+                    throw new ArgumentException("Correction on empty reference INVALID!");
+                }
+                this.SetExcelStringValue(p, "CoverPage", "B19", docRefValue);
             } else
             {
-                this.SetExcelStringValue(p, "CoverPage", "B18", "");
+                this.SetExcelStringValue(p, "CoverPage", "B19", "");
             }
-            this.SetExcelStringValue(p, "CoverPage", "B17", docRefPrefix + Guid.NewGuid());
+            this.SetExcelStringValue(p, "CoverPage", "B18", docRefPrefix + Guid.NewGuid());
            
 
             // SUMMARY
