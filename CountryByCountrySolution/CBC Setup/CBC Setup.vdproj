@@ -92,6 +92,14 @@
             "PrerequisitesLocation" = "2:1"
             "Url" = "8:"
             "ComponentsUrl" = "8:"
+                "Items"
+                {
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:.NETFramework,Version=v4.7.2"
+                    {
+                    "Name" = "8:Microsoft .NET Framework 4.7.2 (x86 and x64)"
+                    "ProductCode" = "8:.NETFramework,Version=v4.7.2"
+                    }
+                }
             }
         }
         "Release"
@@ -116,6 +124,14 @@
             "PrerequisitesLocation" = "2:1"
             "Url" = "8:"
             "ComponentsUrl" = "8:"
+                "Items"
+                {
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:.NETFramework,Version=v4.7.2"
+                    {
+                    "Name" = "8:Microsoft .NET Framework 4.7.2 (x86 and x64)"
+                    "ProductCode" = "8:.NETFramework,Version=v4.7.2"
+                    }
+                }
             }
         }
     }
@@ -325,9 +341,9 @@
         "Product"
         {
         "Name" = "8:Microsoft Visual Studio"
-        "ProductName" = "8:CBC Setup"
+        "ProductName" = "8:CBC Report"
         "ProductCode" = "8:{9CB8756B-9840-49D5-ADEB-F154FE4D9F29}"
-        "PackageCode" = "8:{C02FCF97-B476-461D-8EA2-DF4F863204F7}"
+        "PackageCode" = "8:{CBF4AAF9-2659-40B4-8759-8A380C96D8E4}"
         "UpgradeCode" = "8:{EDDD6F08-0562-46F0-B587-8E348EE6C04D}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
@@ -876,7 +892,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_625EA3C999294083820AA8263A8BB11F"
             {
-            "SourcePath" = "8:..\\CBC-V1\\obj\\Debug\\CBC-V1.exe"
+            "SourcePath" = "8:..\\CBC-V1\\obj\\Release\\CBC-V1.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_36027FF69897486D9105C5DFDDE7FBBA"
