@@ -9,5 +9,4 @@ C:\Git\CountryByCountrySolution\CountryByCountrySolution\CBC-V2\obj\Debug\CBC-V2
 C:\Git\CountryByCountrySolution\CountryByCountrySolution\CBC-V2\obj\Debug\CBC-V2.csproj.CopyComplete
 C:\Git\CountryByCountrySolution\CountryByCountrySolution\CBC-V2\obj\Debug\CBC-V2.exe
 C:\Git\CountryByCountrySolution\CountryByCountrySolution\CBC-V2\obj\Debug\CBC-V2.pdb
-C:\Git\CountryByCountrySolution\CountryByCountrySolution\CBC-V2\obj\Debug\CBC_V2.Form1.resources
-C:\Git\CountryByCountrySolution\CountryByCountrySolution\CBC-V2\obj\Debug\CBC-V2.csprojAssemblyReference.cache
+C:\Git\CountryByCountrySolution\CountryByCountrySolution\CBC-V2\obj\Debug\CBC_V2.Form2.resources
