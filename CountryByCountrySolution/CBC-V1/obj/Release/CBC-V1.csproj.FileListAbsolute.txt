@@ -10,3 +10,4 @@ C:\Git\CountryByCountrySolution\CountryByCountrySolution\CBC-V1\obj\Release\CBC-
 C:\Git\CountryByCountrySolution\CountryByCountrySolution\CBC-V1\obj\Release\CBC-V1.exe
 C:\Git\CountryByCountrySolution\CountryByCountrySolution\CBC-V1\obj\Release\CBC-V1.pdb
 C:\Git\CountryByCountrySolution\CountryByCountrySolution\CBC-V1\obj\Release\CBC_V1.Form1.resources
+C:\Git\CountryByCountrySolution\CountryByCountrySolution\CBC-V1\obj\Release\CBC-V1.csprojAssemblyReference.cache
