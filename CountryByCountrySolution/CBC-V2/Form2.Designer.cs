@@ -114,7 +114,6 @@
             this.txtDestFolder.ForeColor = System.Drawing.Color.Black;
             this.txtDestFolder.Location = new System.Drawing.Point(181, 108);
             this.txtDestFolder.Name = "txtDestFolder";
-            this.txtDestFolder.ReadOnly = true;
             this.txtDestFolder.Size = new System.Drawing.Size(233, 21);
             this.txtDestFolder.TabIndex = 5;
             // 
@@ -176,7 +175,7 @@
             this.lstLog.Size = new System.Drawing.Size(488, 264);
             this.lstLog.TabIndex = 10;
             // 
-            // Form1
+            // Form2
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -198,7 +197,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.MinimizeBox = false;
-            this.Name = "Form1";
+            this.Name = "Form2";
             this.Text = "CBC Report";
             this.ResumeLayout(false);
             this.PerformLayout();

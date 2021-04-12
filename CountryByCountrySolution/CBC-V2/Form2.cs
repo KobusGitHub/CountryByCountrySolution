@@ -163,7 +163,7 @@ namespace CBC_V2
                 this.SetupReferences(package);
 
 
-                cbcfd.CBC_OECD.version = "1.0";
+                cbcfd.CBC_OECD.version = "2.0";
                 cbcfd.CBC_OECD.MessageSpec = GetMessageSpec(package);
                 cbcfd.CBC_OECD.CbcBody = GetCbcBodies(package).ToArray();
 
@@ -209,10 +209,16 @@ namespace CBC_V2
                 Surname = this.GetExcelStringValue(package, "CoverPage", "B22"),
                 FirstNames = this.GetExcelStringValue(package, "CoverPage", "B23"),
                 BusTelNo1 = this.GetExcelStringValue(package, "CoverPage", "B24"),
-                BusTelNo2 = this.GetExcelStringValue(package, "CoverPage", "B25"),
+                //BusTelNo2 = this.GetExcelStringValue(package, "CoverPage", "B25"),
                 CellNo = this.GetExcelStringValue(package, "CoverPage", "B26"),
                 EmailAddress = this.GetExcelStringValue(package, "CoverPage", "B27")
             };
+
+            var busTelCont2Value = this.GetExcelStringValue(package, "CoverPage", "B25");
+            if(!string.IsNullOrEmpty(busTelCont2Value))
+            {
+                sarsStructure.ContactDetails.BusTelNo2 = busTelCont2Value;
+            }
 
             sarsStructure.DeclarationDate = DateTime.Parse(this.GetExcelStringValue(package, "CoverPage", "B21"));
             sarsStructure.DeclarationDateSpecified = true;
@@ -286,11 +292,20 @@ namespace CBC_V2
             messageSpec.Warning = GetExcelStringValue(package, "CoverPage", "B20");
 
             // Contact
-            messageSpec.Contact = GetExcelStringValue(package, "CoverPage", "B1"); // (S: CoverPage; Cells:B1)
+            // messageSpec.Contact = GetExcelStringValue(package, "CoverPage", "B1"); // (S: CoverPage; Cells:B1)
+            var cont = GetExcelStringValue(package, "CoverPage", "B1");
+            if(!string.IsNullOrEmpty(cont))
+            {
+                messageSpec.Contact = cont;
+            }
 
             // MessageRefId
             messageSpec.MessageRefId = GetExcelStringValue(package, "CoverPage", "B2");// "ZA2019BAW"; // (S: CoverPage; Cells:B2)
-            messageSpec.CorrMessageRefId = new string[] { GetExcelStringValue(package, "CoverPage", "B3") };
+
+            if (!string.IsNullOrEmpty(GetExcelStringValue(package, "CoverPage", "B3")))
+            {
+                messageSpec.CorrMessageRefId = new string[] { GetExcelStringValue(package, "CoverPage", "B3") };
+            }
 
             // MessageTypeIndic
             messageSpec.MessageTypeIndic = EnumLookup.GetCbcMessageTypeIndicEnumType(GetExcelStringValue(package, "CoverPage", "B4")); // CbcMessageTypeIndic_EnumType.CBC401; //  (S: CoverPage; Cells:B3)
@@ -336,15 +351,18 @@ namespace CBC_V2
             var repEnt = new CorrectableReportingEntity_Type();
 
 
-            repEnt.Entity = GetOrganisationPartyType(EnumLookup.GetCountryCodeEnumType(GetExcelStringValue(package, "CoverPage", "B6")), // CountryCode_Type.ZA, // (S: CoverPage; Cells: B7)
-                EnumLookup.GetCountryCodeEnumType(GetExcelStringValue(package, "CoverPage", "B7")), // CountryCode_Type.ZA, // (S: CoverPage; Cells: B8)
-                GetExcelStringValue(package, "CoverPage", "B8"), //"9000051715", // (S: CoverPage; Cells: B9)
-                EnumLookup.GetCountryCodeEnumType(GetExcelStringValue(package, "CoverPage", "B9")), // CountryCode_Type.ZA, // (S: CoverPage; Cells: B10)
-                GetExcelStringValue(package, "CoverPage", "B10"), //"1918/000095/06", // (S: CoverPage; Cells: B11)
-                GetExcelStringValue(package, "CoverPage", "B11"), //"Barloworld Limited", // (S: CoverPage; Cells: B12)
-                EnumLookup.GetCountryCodeEnumType(GetExcelStringValue(package, "CoverPage", "B12")), // CountryCode_Type.ZA, // (S: CoverPage; Cells: B13)
-                GetExcelStringValue(package, "CoverPage", "B13").Split(';'), // new object[] { "61 Katherine Street", "Sandton", "2196" }, // (S: CoverPage; Cells: B14) "61 Katherine Street;Sandton;2196" (Split on ;)
-                EnumLookup.GetOECDLegalAddressTypeEnumType(GetExcelStringValue(package, "CoverPage", "B14"))); //OECDLegalAddressType_EnumType.OECD304);// (S: CoverPage; Cells: B15)
+            var resCountryCode = EnumLookup.GetCountryCodeEnumType(GetExcelStringValue(package, "CoverPage", "B6"));
+            var tinIssueBy = EnumLookup.GetCountryCodeEnumType(GetExcelStringValue(package, "CoverPage", "B7"));
+            var tinValue = GetExcelStringValue(package, "CoverPage", "B8");
+            var OrgInTypeIssueBy = EnumLookup.GetCountryCodeEnumType(GetExcelStringValue(package, "CoverPage", "B9"));
+            var orgInTypeValue = GetExcelStringValue(package, "CoverPage", "B10");
+            var nameOrg = GetExcelStringValue(package, "CoverPage", "B11");
+            var addCountryCode = EnumLookup.GetCountryCodeEnumType(GetExcelStringValue(package, "CoverPage", "B12"));
+            var adds = GetExcelStringValue(package, "CoverPage", "B13").Split(';');
+            var legAddType = EnumLookup.GetOECDLegalAddressTypeEnumType(GetExcelStringValue(package, "CoverPage", "B14"));
+
+            repEnt.Entity = GetOrganisationPartyType(resCountryCode, tinIssueBy, tinValue, OrgInTypeIssueBy, orgInTypeValue, nameOrg, addCountryCode, adds, legAddType);
+
 
 
             repEnt.ReportingRole = EnumLookup.GetCbcReportingRoleEnumType(GetExcelStringValue(package, "CoverPage", "B16")); // CbcReportingRole_EnumType.CBC701; // (S: CoverPage; Cells: B17)
@@ -412,26 +430,6 @@ namespace CBC_V2
             entity.Name = new NameOrganisation_Type[] { nameOrganisation_Type };
 
 
-            //if (address.Count() == 3)
-            //{
-            //    var addrItem = new AddressFix_Type()
-            //    {
-            //        Street = address[0].Trim(),
-            //        City = address[1].Trim(),
-            //        PostCode = address[2].Trim()
-            //    };
-
-            //    var addr = new Address_Type()
-            //    {
-            //        CountryCode = addressCountryCode,
-            //        Items = new AddressFix_Type[] { addrItem },
-            //        legalAddressType = legalAddressType,
-            //        legalAddressTypeSpecified = true
-            //    };
-            //    entity.Address = new Address_Type[] { addr };
-            //}
-            //else
-            //{
             var adr = string.Join(",", address);
             var addr = new Address_Type()
             {
@@ -441,8 +439,6 @@ namespace CBC_V2
                 legalAddressTypeSpecified = true
             };
             entity.Address = new Address_Type[] { addr };
-            //}
-
 
             return entity;
 
@@ -581,15 +577,6 @@ namespace CBC_V2
 
         private string RemoveDecimalFromString(string value)
         {
-            //if (!value.Contains("."))
-            //{
-            //    return value;
-            //}
-
-            //var indexOfDot = value.IndexOf(".");
-            //var returnValue = value.Substring(0, indexOfDot + 1);
-            //return returnValue;
-
             var dblValue = double.Parse(value);
             var intValue = Convert.ToInt64(dblValue);
             var returnValue = intValue.ToString();
@@ -712,18 +699,20 @@ namespace CBC_V2
                 constEntity.BizActivities = bizActivities.ToArray();
 
 
-                constEntity.ConstEntity = GetOrganisationPartyType(EnumLookup.GetCountryCodeEnumType(GetExcelStringValue(package, workbookName, "G" + rowNumber)),
-                    EnumLookup.GetCountryCodeEnumType(GetExcelStringValue(package, workbookName, "E" + rowNumber)),
-                    GetExcelStringValue(package, workbookName, "D" + rowNumber),
-                    EnumLookup.GetCountryCodeEnumType(GetExcelStringValue(package, workbookName, "C" + rowNumber)),
-                    GetExcelStringValue(package, workbookName, "B" + rowNumber),
-                    GetExcelStringValue(package, workbookName, "A" + rowNumber),
-                    EnumLookup.GetCountryCodeEnumType(GetExcelStringValue(package, workbookName, "K" + rowNumber)),
-                    GetExcelStringValue(package, workbookName, "J" + rowNumber).Split(';'),
-                    EnumLookup.GetOECDLegalAddressTypeEnumType(GetExcelStringValue(package, workbookName, "L" + rowNumber)));
+
+                var resCountryCode = EnumLookup.GetCountryCodeEnumType(GetExcelStringValue(package, workbookName, "G" + rowNumber));
+                var tinIssueBy = EnumLookup.GetCountryCodeEnumType(GetExcelStringValue(package, workbookName, "E" + rowNumber));
+                var tinValue = GetExcelStringValue(package, workbookName, "D" + rowNumber);
+                var OrgInTypeIssueBy = EnumLookup.GetCountryCodeEnumType(GetExcelStringValue(package, workbookName, "C" + rowNumber));
+                var orgInTypeValue = GetExcelStringValue(package, workbookName, "B" + rowNumber);
+                var nameOrg = GetExcelStringValue(package, workbookName, "A" + rowNumber);
+                var addCountryCode = EnumLookup.GetCountryCodeEnumType(GetExcelStringValue(package, workbookName, "K" + rowNumber));
+                var adds = GetExcelStringValue(package, workbookName, "J" + rowNumber).Split(';');
+                var legAddType = EnumLookup.GetOECDLegalAddressTypeEnumType(GetExcelStringValue(package, workbookName, "L" + rowNumber));
+
+                constEntity.ConstEntity = GetOrganisationPartyType(resCountryCode, tinIssueBy, tinValue, OrgInTypeIssueBy, orgInTypeValue, nameOrg, addCountryCode, adds, legAddType);
 
 
-                // TODO - It doesnt want to serialize this
                 constEntity.IncorpCountryCode = EnumLookup.GetCountryCodeEnumType(GetExcelStringValue(package, workbookName, "F" + rowNumber));
                 constEntity.IncorpCountryCodeSpecified = true;
 
