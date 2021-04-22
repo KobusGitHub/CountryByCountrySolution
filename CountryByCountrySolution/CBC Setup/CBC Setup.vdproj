@@ -16,25 +16,25 @@
         "Entry"
         {
         "MsmKey" = "8:_396C25F9E1D03BC18EF24D13DB5C93D5"
-        "OwnerKey" = "8:_625EA3C999294083820AA8263A8BB11F"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_625EA3C999294083820AA8263A8BB11F"
-        "OwnerKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_A44699BD7A7A4B3393F2D2ECCDBB4ADD"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_75D76FC74AFA2B943295AFB2F824C02F"
-        "OwnerKey" = "8:_625EA3C999294083820AA8263A8BB11F"
+        "OwnerKey" = "8:_A44699BD7A7A4B3393F2D2ECCDBB4ADD"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_9BC1CACA7C8D92015BE11A65407C7A51"
-        "OwnerKey" = "8:_625EA3C999294083820AA8263A8BB11F"
+        "OwnerKey" = "8:_A44699BD7A7A4B3393F2D2ECCDBB4ADD"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_A44699BD7A7A4B3393F2D2ECCDBB4ADD"
+        "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -46,7 +46,13 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_625EA3C999294083820AA8263A8BB11F"
+        "OwnerKey" = "8:_9BC1CACA7C8D92015BE11A65407C7A51"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_A44699BD7A7A4B3393F2D2ECCDBB4ADD"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -59,12 +65,6 @@
         {
         "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_396C25F9E1D03BC18EF24D13DB5C93D5"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_9BC1CACA7C8D92015BE11A65407C7A51"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -342,15 +342,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:CBC Report"
-        "ProductCode" = "8:{9CB8756B-9840-49D5-ADEB-F154FE4D9F29}"
-        "PackageCode" = "8:{CBF4AAF9-2659-40B4-8759-8A380C96D8E4}"
+        "ProductCode" = "8:{E13D4147-BE56-4AE8-B18B-FB669A3963DA}"
+        "PackageCode" = "8:{FA0641BE-914C-4872-B2A6-606426EDF28D}"
         "UpgradeCode" = "8:{EDDD6F08-0562-46F0-B587-8E348EE6C04D}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:FALSE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:1.0.0"
+        "ProductVersion" = "8:2.0.0"
         "Manufacturer" = "8:CrazySoftware"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
@@ -463,7 +463,7 @@
         }
         "Shortcut"
         {
-            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_446C3F83F93F4A32B8DE7A2B4341F971"
+            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_BDDB71AA699F4518A7223665AA2A3A6C"
             {
             "Name" = "8:CBC"
             "Arguments" = "8:"
@@ -471,13 +471,13 @@
             "ShowCmd" = "3:1"
             "IconIndex" = "3:0"
             "Transitive" = "11:FALSE"
-            "Target" = "8:_625EA3C999294083820AA8263A8BB11F"
-            "Folder" = "8:_6E3F82BE6E4A4B60B3F54BF72CCEB98B"
+            "Target" = "8:_A44699BD7A7A4B3393F2D2ECCDBB4ADD"
+            "Folder" = "8:_0C82A6B9B26549C588A1DA296072BED8"
             "WorkingFolder" = "8:_36027FF69897486D9105C5DFDDE7FBBA"
             "Icon" = "8:_E93A4A07AD5F42E39097EC5EDD0914E4"
             "Feature" = "8:"
             }
-            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_B37670141C9547C683886BBA29170D33"
+            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_DEABD9A3286447A5A02D259E77C427A6"
             {
             "Name" = "8:CBC"
             "Arguments" = "8:"
@@ -485,8 +485,8 @@
             "ShowCmd" = "3:1"
             "IconIndex" = "3:0"
             "Transitive" = "11:FALSE"
-            "Target" = "8:_625EA3C999294083820AA8263A8BB11F"
-            "Folder" = "8:_0C82A6B9B26549C588A1DA296072BED8"
+            "Target" = "8:_A44699BD7A7A4B3393F2D2ECCDBB4ADD"
+            "Folder" = "8:_6E3F82BE6E4A4B60B3F54BF72CCEB98B"
             "WorkingFolder" = "8:_36027FF69897486D9105C5DFDDE7FBBA"
             "Icon" = "8:_E93A4A07AD5F42E39097EC5EDD0914E4"
             "Feature" = "8:"
@@ -890,9 +890,9 @@
         }
         "ProjectOutput"
         {
-            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_625EA3C999294083820AA8263A8BB11F"
+            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_A44699BD7A7A4B3393F2D2ECCDBB4ADD"
             {
-            "SourcePath" = "8:..\\CBC-V1\\obj\\Release\\CBC-V1.exe"
+            "SourcePath" = "8:..\\CBC-V2\\obj\\Release\\CBC-V2.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_36027FF69897486D9105C5DFDDE7FBBA"
@@ -912,7 +912,7 @@
             "ProjectOutputGroupRegister" = "3:1"
             "OutputConfiguration" = "8:"
             "OutputGroupCanonicalName" = "8:Built"
-            "OutputProjectGuid" = "8:{09B36596-645E-41F3-AAB9-69B54D32EBA7}"
+            "OutputProjectGuid" = "8:{C6290011-D5D5-49C3-8D41-A2A9FA32B097}"
             "ShowKeyOutput" = "11:TRUE"
                 "ExcludeFilters"
                 {
