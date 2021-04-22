@@ -374,8 +374,7 @@ namespace CBC_V2
             var corrMessageRefId = GetExcelStringValue(package, "CoverPage", "B3");
             repEnt.DocSpec = GetDocSpec(package, docTypeIndic, docRefId, corrDocRefId, corrMessageRefId);
 
-            repEnt.NameMNEGroup = GetExcelStringValue(package, "CoverPage", "B30");
-
+            repEnt.NameMNEGroup = GetExcelStringValue(package, "CoverPage", "B15");
 
             var reportEndString = GetExcelStringValue(package, "CoverPage", "B5");
             var reportEnd = DateTime.Parse(reportEndString);

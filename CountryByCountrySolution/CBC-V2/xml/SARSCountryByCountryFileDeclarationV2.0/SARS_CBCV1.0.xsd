@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<schema
+	targetNamespace="http://www.sars.gov.za/enterpriseMessagingModel/ThirdPartyData/CountryByCountrySARS/xml/schemas/version/1.0"
+	elementFormDefault="qualified" xmlns="http://www.w3.org/2001/XMLSchema"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	xmlns:cbcDecl="http://www.sars.gov.za/enterpriseMessagingModel/ThirdPartyData/CountryByCountrySARS/xml/schemas/version/1.0"
+	xmlns:cbc="urn:oecd:ties:cbc:v1">
+
+	<annotation>
+		<documentation>
+			2020-02-07 Dirk Grobler. First draft.
+		</documentation>
+	</annotation>
+	<element name="CBC_SARS"
+		type="cbcDecl:CBC_SARS_Structure">
+	</element>
+
+	<complexType name="CBC_SARS_Structure">
+		<all>
+			<element name="NoOfTaxJurisdictions" minOccurs="1"
+				maxOccurs="1">
+				<simpleType>
+					<restriction base="short">
+						<minInclusive value="0"></minInclusive>
+						<maxInclusive value="249"></maxInclusive>
+					</restriction>
+				</simpleType>
+			</element>
+			<element name="TaxJurisdictions" minOccurs="1"
+				maxOccurs="1">
+				<complexType>
+					<sequence>
+						<element name="TaxJurisdiction" minOccurs="1"
+							maxOccurs="249">
+							<complexType>
+								<all>
+									<element
+										name="NoOfConstituentEntities" minOccurs="1" maxOccurs="1">
+										<simpleType>
+											<restriction base="short">
+												<minInclusive
+													value="0">
+												</minInclusive>
+											</restriction>
+										</simpleType>
+									</element>
+								</all>
+							</complexType>
+						</element>
+					</sequence>
+				</complexType>
+			</element>
+			<element name="DeclarationDate" type="date" minOccurs="0"
+				maxOccurs="1">
+			</element>
+			<element name="ContactDetails" minOccurs="0"
+				maxOccurs="1">
+				<complexType>
+					<all>
+						<element name="Surname" type="cbcDecl:SurnameType"
+							minOccurs="1" maxOccurs="1">
+						</element>
+						<element name="FirstNames"
+							type="cbcDecl:SurnameType" minOccurs="1" maxOccurs="1">
+						</element>
+						<element name="BusTelNo1"
+							type="cbcDecl:TelFaxCellNoType" minOccurs="1" maxOccurs="1">
+						</element>
+						<element name="BusTelNo2"
+							type="cbcDecl:TelFaxCellNoType" minOccurs="0" maxOccurs="1">
+						</element>
+						<element name="CellNo"
+							type="cbcDecl:TelFaxCellNoType" minOccurs="0" maxOccurs="1">
+						</element>
+						<element name="EmailAddress"
+							type="cbcDecl:EmailType" minOccurs="1" maxOccurs="1">
+						</element>
+					</all>
+				</complexType>
+			</element>
+			<element name="TotalConsolidatedMNEGroupRevenue"
+				minOccurs="1" maxOccurs="1"
+				type="cbcDecl:FinancialAmtWithCurrencyStructure">
+			</element>
+		</all>
+	</complexType>
+
+
+	<complexType name="FinancialAmtWithCurrencyStructure">
+        <all>
+			<element name="Amount" type="cbcDecl:FinancialAmtType" minOccurs="1" maxOccurs="1"></element>
+			<element name="CurrencyCode" type="cbcDecl:CurrencyTypeType" minOccurs="1" maxOccurs="1"></element>
+		</all>
+	</complexType>
+	
+	<xsd:annotation>
+		<xsd:documentation>
+			SARS Base Types defined below.
+	</xsd:documentation>
+	</xsd:annotation>
+	
+	<simpleType name="SurnameType">
+		<annotation>
+			<documentation>
+				Represents an individual party's surname
+			</documentation>
+		</annotation>
+		<restriction base="string">
+			<maxLength value="120" />
+			<minLength value="1"></minLength>
+		</restriction>
+	</simpleType>
+	
+	<simpleType name="TelFaxCellNoType">
+		<annotation>
+			<documentation>Represents an international telephone, fax or
+				cellphone number</documentation>
+		</annotation>
+		<restriction base="string">
+			<pattern value="\d{1,15}" />
+		</restriction>
+	</simpleType>
+	
+	<simpleType name="EmailType">
+		<annotation>
+			<documentation>Represents an email address</documentation>
+		</annotation>
+		<restriction base="string">
+			<maxLength value="80" />
+			<minLength value="1"></minLength>
+		</restriction>
+	</simpleType>
+	
+	<simpleType name="FinancialAmtType">
+		<annotation>
+			<documentation>Represents a standard non-decimal financial amount
+			</documentation>
+		</annotation>
+		<restriction base="long">
+			<pattern value= "[\-+]?[0-9]{1,15}" />
+		</restriction>
+	</simpleType>
+	
+	<simpleType name="CurrencyTypeType">
+		<annotation>
+			<documentation>Represents a currency code</documentation>
+		</annotation>
+		<restriction base="string">
+			<pattern value="\w{1,3}" />
+		</restriction>
+	</simpleType>
+</schema>

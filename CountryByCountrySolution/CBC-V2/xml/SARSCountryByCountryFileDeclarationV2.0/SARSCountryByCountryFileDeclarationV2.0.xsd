@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:cbcDecl="http://www.sars.gov.za/enterpriseMessagingModel/ThirdPartyData/CountryByCountryFileDeclaration/xml/schemas/version/2.0" xmlns:cbcOECD="urn:oecd:ties:cbc:v2" xmlns:cbcSARS="http://www.sars.gov.za/enterpriseMessagingModel/ThirdPartyData/CountryByCountrySARS/xml/schemas/version/1.0" targetNamespace="http://www.sars.gov.za/enterpriseMessagingModel/ThirdPartyData/CountryByCountryFileDeclaration/xml/schemas/version/2.0" elementFormDefault="qualified">
+	<import namespace="urn:oecd:ties:cbc:v2" schemaLocation="CbcXML_v2.0.xsd"/>
+	<import namespace="http://www.sars.gov.za/enterpriseMessagingModel/ThirdPartyData/CountryByCountrySARS/xml/schemas/version/1.0" schemaLocation="SARS_CBCV1.0.xsd"/>
+	<annotation>
+		<documentation>
+			2020-07-06 Dirk Grobler. Updated to cater for OECD CBC version 2.0 schema.
+			2020-04-17 Dirk Grobler. Updated filename reference of SARS_CBCV1.0.xsd.
+			2020-02-07 Dirk Grobler. First draft.
+		</documentation>
+	</annotation>
+	<element name="CountryByCountryFileDeclaration" type="cbcDecl:CountryByCountryDeclarationStructure"/>
+	<complexType name="CountryByCountryDeclarationStructure">
+		<all>
+			<element ref="cbcOECD:CBC_OECD" minOccurs="1" maxOccurs="1"/>
+			<element ref="cbcSARS:CBC_SARS" minOccurs="1" maxOccurs="1"/>
+		</all>
+	</complexType>
+</schema>
