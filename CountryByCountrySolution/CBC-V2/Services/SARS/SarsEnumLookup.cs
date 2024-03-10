@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CBC_V2_SARS;
 
-namespace CountryByCountryReportV2
+namespace CBC_V2.Service.SARS
 {
-    public static class EnumLookup
+    public static class SarsEnumLookup
     {
         public static OECDDocTypeIndic_EnumType GetOECDDocTypeIndicEnumType(string oECDDocTypeIndic)
         {

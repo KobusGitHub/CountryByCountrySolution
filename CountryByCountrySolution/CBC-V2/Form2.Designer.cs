@@ -42,6 +42,12 @@
             this.txtDestFileName = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
             this.lstLog = new System.Windows.Forms.ListBox();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.rad16 = new System.Windows.Forms.RadioButton();
+            this.rad8 = new System.Windows.Forms.RadioButton();
+            this.ckSars = new System.Windows.Forms.CheckBox();
+            this.label5 = new System.Windows.Forms.Label();
+            this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnGenerate
@@ -49,7 +55,7 @@
             this.btnGenerate.BackColor = System.Drawing.Color.LightSteelBlue;
             this.btnGenerate.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnGenerate.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnGenerate.Location = new System.Drawing.Point(194, 196);
+            this.btnGenerate.Location = new System.Drawing.Point(193, 298);
             this.btnGenerate.Name = "btnGenerate";
             this.btnGenerate.Size = new System.Drawing.Size(146, 23);
             this.btnGenerate.TabIndex = 0;
@@ -169,18 +175,80 @@
             // 
             this.lstLog.FormattingEnabled = true;
             this.lstLog.HorizontalScrollbar = true;
-            this.lstLog.Location = new System.Drawing.Point(24, 240);
+            this.lstLog.Location = new System.Drawing.Point(24, 344);
             this.lstLog.Name = "lstLog";
             this.lstLog.SelectionMode = System.Windows.Forms.SelectionMode.None;
-            this.lstLog.Size = new System.Drawing.Size(488, 264);
+            this.lstLog.Size = new System.Drawing.Size(488, 290);
             this.lstLog.TabIndex = 10;
+            // 
+            // groupBox1
+            // 
+            this.groupBox1.Controls.Add(this.rad8);
+            this.groupBox1.Controls.Add(this.rad16);
+            this.groupBox1.Font = new System.Drawing.Font("Verdana", 8F, System.Drawing.FontStyle.Bold);
+            this.groupBox1.ForeColor = System.Drawing.Color.SteelBlue;
+            this.groupBox1.Location = new System.Drawing.Point(59, 198);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(209, 53);
+            this.groupBox1.TabIndex = 11;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "UTF Encoding:";
+            this.groupBox1.Enter += new System.EventHandler(this.groupBox1_Enter);
+            // 
+            // rad16
+            // 
+            this.rad16.AutoSize = true;
+            this.rad16.Checked = true;
+            this.rad16.Location = new System.Drawing.Point(122, 0);
+            this.rad16.Name = "rad16";
+            this.rad16.Size = new System.Drawing.Size(72, 17);
+            this.rad16.TabIndex = 0;
+            this.rad16.TabStop = true;
+            this.rad16.Text = "UTF-16";
+            this.rad16.UseVisualStyleBackColor = true;
+            // 
+            // rad8
+            // 
+            this.rad8.AutoSize = true;
+            this.rad8.Location = new System.Drawing.Point(122, 26);
+            this.rad8.Name = "rad8";
+            this.rad8.Size = new System.Drawing.Size(64, 17);
+            this.rad8.TabIndex = 1;
+            this.rad8.Text = "UTF-8";
+            this.rad8.UseVisualStyleBackColor = true;
+            // 
+            // ckSars
+            // 
+            this.ckSars.AutoSize = true;
+            this.ckSars.Checked = true;
+            this.ckSars.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.ckSars.ForeColor = System.Drawing.Color.SteelBlue;
+            this.ckSars.Location = new System.Drawing.Point(181, 262);
+            this.ckSars.Name = "ckSars";
+            this.ckSars.Size = new System.Drawing.Size(15, 14);
+            this.ckSars.TabIndex = 12;
+            this.ckSars.UseVisualStyleBackColor = true;
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Font = new System.Drawing.Font("Verdana", 8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label5.ForeColor = System.Drawing.Color.SteelBlue;
+            this.label5.Location = new System.Drawing.Point(21, 262);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(149, 13);
+            this.label5.TabIndex = 13;
+            this.label5.Text = "Include SARS Section:";
             // 
             // Form2
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Gainsboro;
-            this.ClientSize = new System.Drawing.Size(540, 532);
+            this.ClientSize = new System.Drawing.Size(540, 669);
+            this.Controls.Add(this.label5);
+            this.Controls.Add(this.ckSars);
+            this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.lstLog);
             this.Controls.Add(this.txtDestFileName);
             this.Controls.Add(this.label4);
@@ -199,6 +267,8 @@
             this.MinimizeBox = false;
             this.Name = "Form2";
             this.Text = "CBC Report";
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -220,6 +290,11 @@
         private System.Windows.Forms.TextBox txtDestFileName;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.ListBox lstLog;
+        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.RadioButton rad8;
+        private System.Windows.Forms.RadioButton rad16;
+        private System.Windows.Forms.CheckBox ckSars;
+        private System.Windows.Forms.Label label5;
     }
 }
 

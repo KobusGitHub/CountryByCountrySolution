@@ -16,7 +16,11 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
+using System.Text.Json;
+using CBC_V2_ALL_COUNTRIES;
 using System.Xml.Serialization;
+using CBC_V2.Service.AllCountries;
+using CBC_V2.Service.SARS;
 
 namespace CBC_V2
 {
@@ -115,6 +119,27 @@ namespace CBC_V2
             MessageBox.Show("File created successfully.", "Success");
 
 
+            try
+            {
+                logMessage("");
+
+                logMessage("XML Validation Start");
+                XmlValidatorService.ValidateXml(xmlFilePath);
+                logMessage("XML Validation Success");
+
+                MessageBox.Show("XML validation successful.", "Success");
+            }
+            catch (Exception ex)
+            {
+                logMessage(ex.Message);
+                logMessage("XML Validation Failed");
+                MessageBox.Show(ex.Message);
+                return;
+            }
+
+
+
+
             if (File.Exists(xmlFilePath))
             {
                 Process.Start("explorer.exe", txtDestFolder.Text);
@@ -128,7 +153,7 @@ namespace CBC_V2
         {
             DocSpec_Type docSpec = new DocSpec_Type
             {
-                DocTypeIndic = EnumLookup.GetOECDDocTypeIndicEnumType(docTypeIndic),
+                DocTypeIndic = AllCountriesEnumLookup.GetOECDDocTypeIndicEnumType(docTypeIndic),
                 DocRefId = docRefId,
             };
 
@@ -146,50 +171,106 @@ namespace CBC_V2
 
             return docSpec;
         }
+
+
+       
         private void StartWork(FileInfo newExcelFile)
         {
             // xsd.exe CbcXML_v1.0.1.xsd /Classes oecdtypes_v4.1.xsd /Classes isocbctypes_v1.0.1.xsd
 
 
-            var cbcfd = new CountryByCountryDeclarationStructure();
-            cbcfd.CBC_OECD = new CBC_OECD();
-            cbcfd.CBC_SARS = new CBC_SARS_Structure();
-
+            // xsd.exe CbcXML_v2.0.xsd /Classes isocbctypes_v1.1.xsd /Classes oecdcbctypes_v5.0.xsd
 
 
             ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+
+
+            if (ckSars.Checked)
+            {
+                SarsGenerator generator = new SarsGenerator(this.myGuid);
+                generator.LogMessageEvent += LogEventHandlerFired;
+                generator.GenerateFile(xlsxFile, xmlFilePath, rad8.Checked);
+            }
+            else
+            {
+                AllCountriesGenerator generator = new AllCountriesGenerator(this.myGuid);
+                generator.LogMessageEvent += LogEventHandlerFired;
+                generator.GenerateFile(xlsxFile, xmlFilePath, rad8.Checked);
+            }
+
+
+            return;
+
+
+
+
+
+
+            CBC_V2_SARS.CBC_SARS_Structure CBC_SARS = null;
+
+
+            var cbcfd = new CBC_V2_ALL_COUNTRIES.CBC_OECD();
+            cbcfd.version = "2.0";
+
+
             using (var package = new ExcelPackage(xlsxFile))
             {
                 this.SetupReferences(package);
 
+                cbcfd.MessageSpec = GetMessageSpec(package);
+                cbcfd.CbcBody = GetCbcBodies(package).ToArray();
 
-                cbcfd.CBC_OECD.version = "2.0";
-                cbcfd.CBC_OECD.MessageSpec = GetMessageSpec(package);
-                cbcfd.CBC_OECD.CbcBody = GetCbcBodies(package).ToArray();
-
-                cbcfd.CBC_SARS = GetCBC_SARS_Structure(package);
-
+                if (ckSars.Checked)
+                {
+                    CBC_SARS = GetCBC_SARS_Structure(package);
+                }
 
                 package.SaveAs(newExcelFile);
             }
 
-            logMessage("Data Completed");
-
             var xml = "";
-            XmlSerializer xsSubmit = new XmlSerializer(typeof(CountryByCountryDeclarationStructure));
-            using (var sww = new StringWriter())
+            if (ckSars.Checked)
             {
-                XmlWriterSettings settings = new XmlWriterSettings();
-                settings.Indent = true;
-                settings.NewLineOnAttributes = true;
+                // SARS
 
-                using (XmlWriter writer = XmlWriter.Create(sww, settings))
-                {
-                    xsSubmit.Serialize(writer, cbcfd);
-                    xml = sww.ToString(); // Your XML
-                }
+                //var sarsCbcds = new CBC_V2_SARS.CountryByCountryDeclarationStructure();
+                //sarsCbcds.CBC_OECD = new CBC_V2_SARS.CBC_OECD();
+                //sarsCbcds.CBC_SARS = new CBC_V2_SARS.CBC_SARS_Structure();
+
+                //sarsCbcds.CBC_OECD.version = "2.0";
+                //sarsCbcds.CBC_OECD.MessageSpec = ConvertMessageSpecToSars(cbcfd.MessageSpec);
+                //sarsCbcds.CBC_OECD.CbcBody = ConvertCbcBodyToSars(cbcfd.CbcBody);
+                //sarsCbcds.CBC_SARS = CBC_SARS;
+
+
+                //logMessage("Data Completed");
+
+                //if (rad8.Checked)
+                //{
+                //    xml = XmlConverter.GetUtf8XmlStringSars(sarsCbcds);
+                //}
+                //else
+                //{
+                //    xml = XmlConverter.GetUtf16XmlStringSars(sarsCbcds);
+                //}
+
             }
+            else
+            {
+                // ALL Countries
 
+                logMessage("Data Completed");
+
+                if (rad8.Checked)
+                {
+                    xml = XmlConverter.GetUtf8XmlStringAllCountries(cbcfd);
+                }
+                else
+                {
+                    xml = XmlConverter.GetUtf16XmlStringAllCountries(cbcfd);
+                }
+
+            }
 
             using (StreamWriter file = new StreamWriter(xmlFilePath))
             {
@@ -199,12 +280,67 @@ namespace CBC_V2
 
         }
 
-
-        private CBC_SARS_Structure GetCBC_SARS_Structure(ExcelPackage package)
+        private void LogEventHandlerFired(object sender, string e)
         {
-            var sarsStructure = new CBC_SARS_Structure();
+            this.logMessage(e);
+        }
 
-            sarsStructure.ContactDetails = new CBC_SARS_StructureContactDetails
+        private CBC_V2_SARS.MessageSpec_Type ConvertMessageSpecToSars(MessageSpec_Type messageSpec)
+        {
+            var serialisedObject = JsonSerializer.Serialize(messageSpec);
+            var returnObject = JsonSerializer.Deserialize<CBC_V2_SARS.MessageSpec_Type>(serialisedObject);
+
+            return returnObject;
+        }
+
+        private CBC_V2_SARS.CbcBody_Type[] ConvertCbcBodyToSars(CbcBody_Type[] cbcBody)
+        {
+            var serialisedObject = JsonSerializer.Serialize(cbcBody);
+            var returnObject = JsonSerializer.Deserialize<CBC_V2_SARS.CbcBody_Type[]>(serialisedObject);
+
+            return returnObject;
+        }
+
+        //public string GetUtf8XmlString(CBC_OECD cbcfd)
+        //{
+        //    var serializer = new XmlSerializer(typeof(CBC_OECD));
+        //    var xml = "";
+        //    using (StringWriter writer = new Utf8StringWriter())
+        //    {
+        //        serializer.Serialize(writer, cbcfd);
+        //        xml = writer.ToString();
+        //    }
+        //    return xml;
+        //}
+
+        //public string GetUtf16XmlString(CBC_OECD cbcfd)
+        //{
+        //    var xml = "";
+        //    XmlSerializer xsSubmit = new XmlSerializer(typeof(CBC_OECD));
+        //    using (var sww = new StringWriter())
+        //    {
+        //        XmlWriterSettings settings = new XmlWriterSettings();
+        //        settings.Indent = true;
+        //        settings.NewLineOnAttributes = true;
+
+
+
+        //        using (XmlWriter writer = XmlWriter.Create(sww, settings))
+        //        {
+        //            xsSubmit.Serialize(writer, cbcfd);
+        //            xml = sww.ToString(); // Your XML
+        //        }
+        //    }
+
+        //    return xml;
+
+        //}
+
+        private CBC_V2_SARS.CBC_SARS_Structure GetCBC_SARS_Structure(ExcelPackage package)
+        {
+            var sarsStructure = new CBC_V2_SARS.CBC_SARS_Structure();
+
+            sarsStructure.ContactDetails = new CBC_V2_SARS.CBC_SARS_StructureContactDetails
             {
                 Surname = this.GetExcelStringValue(package, "CoverPage", "B22"),
                 FirstNames = this.GetExcelStringValue(package, "CoverPage", "B23"),
@@ -215,7 +351,7 @@ namespace CBC_V2
             };
 
             var busTelCont2Value = this.GetExcelStringValue(package, "CoverPage", "B25");
-            if(!string.IsNullOrEmpty(busTelCont2Value))
+            if (!string.IsNullOrEmpty(busTelCont2Value))
             {
                 sarsStructure.ContactDetails.BusTelNo2 = busTelCont2Value;
             }
@@ -223,7 +359,7 @@ namespace CBC_V2
             sarsStructure.DeclarationDate = DateTime.Parse(this.GetExcelStringValue(package, "CoverPage", "B21"));
             sarsStructure.DeclarationDateSpecified = true;
 
-            sarsStructure.TotalConsolidatedMNEGroupRevenue = new FinancialAmtWithCurrencyStructure()
+            sarsStructure.TotalConsolidatedMNEGroupRevenue = new CBC_V2_SARS.FinancialAmtWithCurrencyStructure()
             {
                 CurrencyCode = "ZAR",
                 Amount = Convert.ToInt64(this.GetExcelDoubleValue(package, "CoverPage", "B28").Value)
@@ -231,11 +367,11 @@ namespace CBC_V2
             sarsStructure.NoOfTaxJurisdictions = Convert.ToInt16(this.receivingCountryClass.Count());
 
 
-            List<CBC_SARS_StructureTaxJurisdiction> stjList = new List<CBC_SARS_StructureTaxJurisdiction>();
+            List<CBC_V2_SARS.CBC_SARS_StructureTaxJurisdiction> stjList = new List<CBC_V2_SARS.CBC_SARS_StructureTaxJurisdiction>();
 
             foreach (var summary in this.ConstituentEntitiesSummaries)
             {
-                stjList.Add(new CBC_SARS_StructureTaxJurisdiction
+                stjList.Add(new CBC_V2_SARS.CBC_SARS_StructureTaxJurisdiction
                 {
                     NoOfConstituentEntities = Convert.ToInt16(summary.ConstituentEntityCount)
                 });
@@ -254,7 +390,7 @@ namespace CBC_V2
             this.receivingCountryClass = new List<ReceivingCountryClass>();
 
             // cbc_oecd.MessageSpec.SendingEntityIN
-            messageSpec.TransmittingCountry = CountryCode_Type.ZA;
+            messageSpec.TransmittingCountry = CountryCode_Type.MU;// TODO 20240305 get FROM file Somewhere SHould be cover page B6
 
 
             // ReceivingCountry
@@ -270,7 +406,7 @@ namespace CBC_V2
                 }
 
 
-                ReceivingCountries.Add(EnumLookup.GetCountryCodeEnumType(cellValue)); // (S:SUMMARY - Cells:A)
+                ReceivingCountries.Add(AllCountriesEnumLookup.GetCountryCodeEnumType(cellValue)); // (S:SUMMARY - Cells:A)
 
                 this.receivingCountryClass.Add(new ReceivingCountryClass
                 {
@@ -279,7 +415,51 @@ namespace CBC_V2
                 });
                 rowNumber++;
             }
-            messageSpec.ReceivingCountry = new CountryCode_Type[] { CountryCode_Type.ZA };
+            //messageSpec.ReceivingCountry = new CountryCode_Type[] { CountryCode_Type.MU,  };  // TODO 20240305 get FROM file Somewhere SHould be cover page B6
+
+            messageSpec.ReceivingCountry = new CountryCode_Type[] {
+                CountryCode_Type.AE,
+                CountryCode_Type.BE,
+                CountryCode_Type.BI,
+                CountryCode_Type.BW,
+                CountryCode_Type.CD,
+                CountryCode_Type.CV,
+                CountryCode_Type.GB,
+                CountryCode_Type.GH,
+                CountryCode_Type.JE,
+                CountryCode_Type.KE,
+                CountryCode_Type.LS,
+                CountryCode_Type.MT,
+                CountryCode_Type.MU,
+                CountryCode_Type.MW,
+                CountryCode_Type.MZ,
+                CountryCode_Type.NG,
+                CountryCode_Type.RW,
+                CountryCode_Type.SA,
+                CountryCode_Type.SD,
+                CountryCode_Type.TG,
+                CountryCode_Type.TZ,
+                CountryCode_Type.UG,
+                CountryCode_Type.US,
+                CountryCode_Type.ZA,
+                CountryCode_Type.ZM,
+                CountryCode_Type.ZW,
+                CountryCode_Type.VG,
+                CountryCode_Type.IL,
+                CountryCode_Type.CA,
+                CountryCode_Type.CL,
+                CountryCode_Type.MX,
+                CountryCode_Type.PE,
+                CountryCode_Type.AR,
+                CountryCode_Type.PY,
+                CountryCode_Type.CO,
+                CountryCode_Type.PL
+            };
+            // TODO 20240305 get FROM file Somewhere SHould be cover page B6
+
+
+
+
 
             // MessageType
             messageSpec.MessageType = MessageType_EnumType.CBC;
@@ -294,7 +474,7 @@ namespace CBC_V2
             // Contact
             // messageSpec.Contact = GetExcelStringValue(package, "CoverPage", "B1"); // (S: CoverPage; Cells:B1)
             var cont = GetExcelStringValue(package, "CoverPage", "B1");
-            if(!string.IsNullOrEmpty(cont))
+            if (!string.IsNullOrEmpty(cont))
             {
                 messageSpec.Contact = cont;
             }
@@ -308,7 +488,7 @@ namespace CBC_V2
             }
 
             // MessageTypeIndic
-            messageSpec.MessageTypeIndic = EnumLookup.GetCbcMessageTypeIndicEnumType(GetExcelStringValue(package, "CoverPage", "B4")); // CbcMessageTypeIndic_EnumType.CBC401; //  (S: CoverPage; Cells:B3)
+            messageSpec.MessageTypeIndic = AllCountriesEnumLookup.GetCbcMessageTypeIndicEnumType(GetExcelStringValue(package, "CoverPage", "B4")); // CbcMessageTypeIndic_EnumType.CBC401; //  (S: CoverPage; Cells:B3)
 
             // Removed in V2.0
             // messageSpec.MessageTypeIndicSpecified = true;
@@ -319,9 +499,10 @@ namespace CBC_V2
             messageSpec.Timestamp = DateTime.Now;
 
 
-            // messageSpec.SendingEntityIN = null; // TODO Check with SARS
+            messageSpec.SendingEntityIN = GetExcelStringValue(package, "CoverPage", "B8"); ; // TODO Check with SARS B10
 
             // messageSpec.CorrMessageRefId = null;  // This data element is not used for CbC reporting
+
 
 
             return messageSpec;
@@ -351,21 +532,21 @@ namespace CBC_V2
             var repEnt = new CorrectableReportingEntity_Type();
 
 
-            var resCountryCode = EnumLookup.GetCountryCodeEnumType(GetExcelStringValue(package, "CoverPage", "B6"));
-            var tinIssueBy = EnumLookup.GetCountryCodeEnumType(GetExcelStringValue(package, "CoverPage", "B7"));
+            var resCountryCode = AllCountriesEnumLookup.GetCountryCodeEnumType(GetExcelStringValue(package, "CoverPage", "B6"));
+            var tinIssueBy = AllCountriesEnumLookup.GetCountryCodeEnumType(GetExcelStringValue(package, "CoverPage", "B7"));
             var tinValue = GetExcelStringValue(package, "CoverPage", "B8");
-            var OrgInTypeIssueBy = EnumLookup.GetCountryCodeEnumType(GetExcelStringValue(package, "CoverPage", "B9"));
+            var OrgInTypeIssueBy = AllCountriesEnumLookup.GetCountryCodeEnumType(GetExcelStringValue(package, "CoverPage", "B9"));
             var orgInTypeValue = GetExcelStringValue(package, "CoverPage", "B10");
             var nameOrg = GetExcelStringValue(package, "CoverPage", "B11");
-            var addCountryCode = EnumLookup.GetCountryCodeEnumType(GetExcelStringValue(package, "CoverPage", "B12"));
+            var addCountryCode = AllCountriesEnumLookup.GetCountryCodeEnumType(GetExcelStringValue(package, "CoverPage", "B12"));
             var adds = GetExcelStringValue(package, "CoverPage", "B13").Split(';');
-            var legAddType = EnumLookup.GetOECDLegalAddressTypeEnumType(GetExcelStringValue(package, "CoverPage", "B14"));
+            var legAddType = AllCountriesEnumLookup.GetOECDLegalAddressTypeEnumType(GetExcelStringValue(package, "CoverPage", "B14"));
 
             repEnt.Entity = GetOrganisationPartyType(resCountryCode, tinIssueBy, tinValue, OrgInTypeIssueBy, orgInTypeValue, nameOrg, addCountryCode, adds, legAddType);
 
 
 
-            repEnt.ReportingRole = EnumLookup.GetCbcReportingRoleEnumType(GetExcelStringValue(package, "CoverPage", "B16")); // CbcReportingRole_EnumType.CBC701; // (S: CoverPage; Cells: B17)
+            repEnt.ReportingRole = AllCountriesEnumLookup.GetCbcReportingRoleEnumType(GetExcelStringValue(package, "CoverPage", "B16")); // CbcReportingRole_EnumType.CBC701; // (S: CoverPage; Cells: B17)
 
 
             var docTypeIndic = GetExcelStringValue(package, "CoverPage", "B17");
@@ -498,7 +679,7 @@ namespace CBC_V2
         private CountryCode_Type[] GetAdditionalInfoResCountryCodes(string commaDelimetedCountryCode)
         {
             List<CountryCode_Type> codeList = new List<CountryCode_Type>();
-           
+
             var array = commaDelimetedCountryCode.Split(',');
             foreach (var arr in array)
             {
@@ -507,7 +688,7 @@ namespace CBC_V2
                 {
                     continue;
                 }
-                codeList.Add(EnumLookup.GetCountryCodeEnumType(val));
+                codeList.Add(AllCountriesEnumLookup.GetCountryCodeEnumType(val));
             }
 
 
@@ -526,7 +707,7 @@ namespace CBC_V2
                 {
                     continue;
                 }
-                refList.Add(EnumLookup.GetCbcSummaryListElementsType_EnumType(val));
+                refList.Add(AllCountriesEnumLookup.GetCbcSummaryListElementsType_EnumType(val));
             }
 
             return refList.ToArray();
@@ -542,7 +723,7 @@ namespace CBC_V2
             {
                 var cbcRep = new CorrectableCbcReport_Type();
 
-                cbcRep.ResCountryCode = EnumLookup.GetCountryCodeEnumType(recCountryCls.CountryCode);
+                cbcRep.ResCountryCode = AllCountriesEnumLookup.GetCountryCodeEnumType(recCountryCls.CountryCode);
 
                 var docTypeIndic = GetExcelStringValue(package, "SUMMARY", "M" + recCountryCls.RowNumber);
                 var docRefId = GetExcelStringValue(package, "SUMMARY", "N" + recCountryCls.RowNumber);
@@ -692,27 +873,27 @@ namespace CBC_V2
                 {
                     if (!string.IsNullOrEmpty(actCode))
                     {
-                        bizActivities.Add(EnumLookup.GetCbcBizActivityTypeEnumType(actCode));
+                        bizActivities.Add(AllCountriesEnumLookup.GetCbcBizActivityTypeEnumType(actCode));
                     }
                 }
                 constEntity.BizActivities = bizActivities.ToArray();
 
 
 
-                var resCountryCode = EnumLookup.GetCountryCodeEnumType(GetExcelStringValue(package, workbookName, "G" + rowNumber));
-                var tinIssueBy = EnumLookup.GetCountryCodeEnumType(GetExcelStringValue(package, workbookName, "E" + rowNumber));
+                var resCountryCode = AllCountriesEnumLookup.GetCountryCodeEnumType(GetExcelStringValue(package, workbookName, "G" + rowNumber));
+                var tinIssueBy = AllCountriesEnumLookup.GetCountryCodeEnumType(GetExcelStringValue(package, workbookName, "E" + rowNumber));
                 var tinValue = GetExcelStringValue(package, workbookName, "D" + rowNumber);
-                var OrgInTypeIssueBy = EnumLookup.GetCountryCodeEnumType(GetExcelStringValue(package, workbookName, "C" + rowNumber));
+                var OrgInTypeIssueBy = AllCountriesEnumLookup.GetCountryCodeEnumType(GetExcelStringValue(package, workbookName, "C" + rowNumber));
                 var orgInTypeValue = GetExcelStringValue(package, workbookName, "B" + rowNumber);
                 var nameOrg = GetExcelStringValue(package, workbookName, "A" + rowNumber);
-                var addCountryCode = EnumLookup.GetCountryCodeEnumType(GetExcelStringValue(package, workbookName, "K" + rowNumber));
+                var addCountryCode = AllCountriesEnumLookup.GetCountryCodeEnumType(GetExcelStringValue(package, workbookName, "K" + rowNumber));
                 var adds = GetExcelStringValue(package, workbookName, "J" + rowNumber).Split(';');
-                var legAddType = EnumLookup.GetOECDLegalAddressTypeEnumType(GetExcelStringValue(package, workbookName, "L" + rowNumber));
+                var legAddType = AllCountriesEnumLookup.GetOECDLegalAddressTypeEnumType(GetExcelStringValue(package, workbookName, "L" + rowNumber));
 
                 constEntity.ConstEntity = GetOrganisationPartyType(resCountryCode, tinIssueBy, tinValue, OrgInTypeIssueBy, orgInTypeValue, nameOrg, addCountryCode, adds, legAddType);
 
 
-                constEntity.IncorpCountryCode = EnumLookup.GetCountryCodeEnumType(GetExcelStringValue(package, workbookName, "F" + rowNumber));
+                constEntity.IncorpCountryCode = AllCountriesEnumLookup.GetCountryCodeEnumType(GetExcelStringValue(package, workbookName, "F" + rowNumber));
                 constEntity.IncorpCountryCodeSpecified = true;
 
                 constEntity.OtherEntityInfo = GetExcelStringValue(package, workbookName, "I" + rowNumber);
@@ -934,5 +1115,16 @@ namespace CBC_V2
 
         }
 
+        private void groupBox1_Enter(object sender, EventArgs e)
+        {
+
+        }
+    }
+
+
+
+    public class Utf8StringWriter : StringWriter
+    {
+        public override Encoding Encoding => Encoding.UTF8;
     }
 }

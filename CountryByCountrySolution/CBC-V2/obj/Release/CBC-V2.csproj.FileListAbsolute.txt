@@ -10,3 +10,7 @@ C:\Git\CountryByCountrySolution\CountryByCountrySolution\CBC-V2\obj\Release\CBC-
 C:\Git\CountryByCountrySolution\CountryByCountrySolution\CBC-V2\obj\Release\CBC-V2.exe
 C:\Git\CountryByCountrySolution\CountryByCountrySolution\CBC-V2\obj\Release\CBC-V2.pdb
 C:\Git\CountryByCountrySolution\CountryByCountrySolution\CBC-V2\obj\Release\CBC_V2.Form2.resources
+C:\Git\CountryByCountrySolution\CountryByCountrySolution\CBC-V2\bin\Release\xsdFiles\CbcXML_v2.0.xsd
+C:\Git\CountryByCountrySolution\CountryByCountrySolution\CBC-V2\bin\Release\xsdFiles\isocbctypes_v1.1.xsd
+C:\Git\CountryByCountrySolution\CountryByCountrySolution\CBC-V2\bin\Release\xsdFiles\oecdcbctypes_v5.0.xsd
+C:\Git\CountryByCountrySolution\CountryByCountrySolution\CBC-V2\obj\Release\CBC-V2.csprojAssemblyReference.cache

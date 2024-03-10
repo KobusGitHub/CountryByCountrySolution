@@ -21,8 +21,26 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_51F85ADF64414C938DF255A0B4448E4E"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_75D76FC74AFA2B943295AFB2F824C02F"
         "OwnerKey" = "8:_A44699BD7A7A4B3393F2D2ECCDBB4ADD"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_7A16A6FB45A94D97B696658FC7AAC314"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_89AA8614C1AE45AEACB61F864F0D1740"
+        "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -46,12 +64,6 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_9BC1CACA7C8D92015BE11A65407C7A51"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_A44699BD7A7A4B3393F2D2ECCDBB4ADD"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -65,6 +77,12 @@
         {
         "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_396C25F9E1D03BC18EF24D13DB5C93D5"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_9BC1CACA7C8D92015BE11A65407C7A51"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -193,6 +211,26 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_51F85ADF64414C938DF255A0B4448E4E"
+            {
+            "SourcePath" = "8:..\\CBC-V2\\xsdFiles\\isocbctypes_v1.1.xsd"
+            "TargetName" = "8:isocbctypes_v1.1.xsd"
+            "Tag" = "8:"
+            "Folder" = "8:_6DD5CADAFDD04EFBA0736F28306B2F7F"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_75D76FC74AFA2B943295AFB2F824C02F"
             {
             "AssemblyRegister" = "3:1"
@@ -222,6 +260,46 @@
             "Register" = "3:1"
             "Exclude" = "11:FALSE"
             "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7A16A6FB45A94D97B696658FC7AAC314"
+            {
+            "SourcePath" = "8:..\\CBC-V2\\xsdFiles\\oecdcbctypes_v5.0.xsd"
+            "TargetName" = "8:oecdcbctypes_v5.0.xsd"
+            "Tag" = "8:"
+            "Folder" = "8:_6DD5CADAFDD04EFBA0736F28306B2F7F"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_89AA8614C1AE45AEACB61F864F0D1740"
+            {
+            "SourcePath" = "8:..\\CBC-V2\\xsdFiles\\CbcXML_v2.0.xsd"
+            "TargetName" = "8:CbcXML_v2.0.xsd"
+            "Tag" = "8:"
+            "Folder" = "8:_6DD5CADAFDD04EFBA0736F28306B2F7F"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
             "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_9BC1CACA7C8D92015BE11A65407C7A51"
@@ -302,6 +380,17 @@
             "Property" = "8:TARGETDIR"
                 "Folders"
                 {
+                    "{9EF0B969-E518-4E46-987F-47570745A589}:_6DD5CADAFDD04EFBA0736F28306B2F7F"
+                    {
+                    "Name" = "8:xsdFiles"
+                    "AlwaysCreate" = "11:FALSE"
+                    "Condition" = "8:"
+                    "Transitive" = "11:FALSE"
+                    "Property" = "8:_1DAF05F1CFF44771B41A6BD6F4E9E5E0"
+                        "Folders"
+                        {
+                        }
+                    }
                 }
             }
             "{1525181F-901A-416C-8A58-119130FE478E}:_4B6E0FFB8B7E4BA4AAA52CB62A0235C9"
@@ -342,15 +431,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:CBC Report"
-        "ProductCode" = "8:{E13D4147-BE56-4AE8-B18B-FB669A3963DA}"
-        "PackageCode" = "8:{FA0641BE-914C-4872-B2A6-606426EDF28D}"
+        "ProductCode" = "8:{256F572C-3C35-4DC4-9AB2-63CD895E708C}"
+        "PackageCode" = "8:{087DCD22-8AC3-4E16-95E2-878AC2F9FC60}"
         "UpgradeCode" = "8:{EDDD6F08-0562-46F0-B587-8E348EE6C04D}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:FALSE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:2.0.0"
+        "ProductVersion" = "8:2.1.0"
         "Manufacturer" = "8:CrazySoftware"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
@@ -892,7 +981,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_A44699BD7A7A4B3393F2D2ECCDBB4ADD"
             {
-            "SourcePath" = "8:..\\CBC-V2\\obj\\Release\\CBC-V2.exe"
+            "SourcePath" = "8:"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_36027FF69897486D9105C5DFDDE7FBBA"
