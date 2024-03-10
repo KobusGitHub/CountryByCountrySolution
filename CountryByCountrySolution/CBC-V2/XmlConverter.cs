@@ -12,9 +12,9 @@ namespace CBC_V2
     public static class XmlConverter
     {
 
-        public static string GetUtf8XmlStringAllCountries(CBC_V2_ALL_COUNTRIES.CBC_OECD cbcfd)
+        public static string GetUtf8XmlStringAllCountries(CBC_V2_OTHER_COUNTRIES.CBC_OECD cbcfd)
         {
-            var serializer = new XmlSerializer(typeof(CBC_V2_ALL_COUNTRIES.CBC_OECD));
+            var serializer = new XmlSerializer(typeof(CBC_V2_OTHER_COUNTRIES.CBC_OECD));
             var xml = "";
             using (StringWriter writer = new Utf8StringWriter())
             {
@@ -24,10 +24,10 @@ namespace CBC_V2
             return xml;
         }
 
-        public static string GetUtf16XmlStringAllCountries(CBC_V2_ALL_COUNTRIES.CBC_OECD cbcfd)
+        public static string GetUtf16XmlStringAllCountries(CBC_V2_OTHER_COUNTRIES.CBC_OECD cbcfd)
         {
             var xml = "";
-            XmlSerializer xsSubmit = new XmlSerializer(typeof(CBC_V2_ALL_COUNTRIES.CBC_OECD));
+            XmlSerializer xsSubmit = new XmlSerializer(typeof(CBC_V2_OTHER_COUNTRIES.CBC_OECD));
             using (var sww = new StringWriter())
             {
                 XmlWriterSettings settings = new XmlWriterSettings();

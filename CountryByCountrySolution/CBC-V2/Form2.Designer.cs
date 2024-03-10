@@ -43,10 +43,11 @@
             this.label4 = new System.Windows.Forms.Label();
             this.lstLog = new System.Windows.Forms.ListBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.rad16 = new System.Windows.Forms.RadioButton();
             this.rad8 = new System.Windows.Forms.RadioButton();
+            this.rad16 = new System.Windows.Forms.RadioButton();
             this.ckSars = new System.Windows.Forms.CheckBox();
             this.label5 = new System.Windows.Forms.Label();
+            this.label6 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -189,11 +190,20 @@
             this.groupBox1.ForeColor = System.Drawing.Color.SteelBlue;
             this.groupBox1.Location = new System.Drawing.Point(59, 198);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(209, 53);
+            this.groupBox1.Size = new System.Drawing.Size(355, 53);
             this.groupBox1.TabIndex = 11;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "UTF Encoding:";
-            this.groupBox1.Enter += new System.EventHandler(this.groupBox1_Enter);
+            // 
+            // rad8
+            // 
+            this.rad8.AutoSize = true;
+            this.rad8.Location = new System.Drawing.Point(122, 26);
+            this.rad8.Name = "rad8";
+            this.rad8.Size = new System.Drawing.Size(228, 17);
+            this.rad8.TabIndex = 1;
+            this.rad8.Text = "UTF-8   (SA or other Countries)";
+            this.rad8.UseVisualStyleBackColor = true;
             // 
             // rad16
             // 
@@ -201,21 +211,11 @@
             this.rad16.Checked = true;
             this.rad16.Location = new System.Drawing.Point(122, 0);
             this.rad16.Name = "rad16";
-            this.rad16.Size = new System.Drawing.Size(72, 17);
+            this.rad16.Size = new System.Drawing.Size(137, 17);
             this.rad16.TabIndex = 0;
             this.rad16.TabStop = true;
-            this.rad16.Text = "UTF-16";
+            this.rad16.Text = "UTF-16 (SA only)";
             this.rad16.UseVisualStyleBackColor = true;
-            // 
-            // rad8
-            // 
-            this.rad8.AutoSize = true;
-            this.rad8.Location = new System.Drawing.Point(122, 26);
-            this.rad8.Name = "rad8";
-            this.rad8.Size = new System.Drawing.Size(64, 17);
-            this.rad8.TabIndex = 1;
-            this.rad8.Text = "UTF-8";
-            this.rad8.UseVisualStyleBackColor = true;
             // 
             // ckSars
             // 
@@ -234,11 +234,22 @@
             this.label5.AutoSize = true;
             this.label5.Font = new System.Drawing.Font("Verdana", 8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label5.ForeColor = System.Drawing.Color.SteelBlue;
-            this.label5.Location = new System.Drawing.Point(21, 262);
+            this.label5.Location = new System.Drawing.Point(75, 262);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(149, 13);
+            this.label5.Size = new System.Drawing.Size(89, 13);
             this.label5.TabIndex = 13;
-            this.label5.Text = "Include SARS Section:";
+            this.label5.Text = "Is SARS CBC:";
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Font = new System.Drawing.Font("Verdana", 8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label6.ForeColor = System.Drawing.Color.SteelBlue;
+            this.label6.Location = new System.Drawing.Point(202, 263);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(68, 13);
+            this.label6.TabIndex = 14;
+            this.label6.Text = "(SA only)";
             // 
             // Form2
             // 
@@ -246,6 +257,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Gainsboro;
             this.ClientSize = new System.Drawing.Size(540, 669);
+            this.Controls.Add(this.label6);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.ckSars);
             this.Controls.Add(this.groupBox1);
@@ -295,6 +307,7 @@
         private System.Windows.Forms.RadioButton rad16;
         private System.Windows.Forms.CheckBox ckSars;
         private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.Label label6;
     }
 }
 

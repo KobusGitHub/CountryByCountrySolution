@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using CBC_V2_ALL_COUNTRIES;
+using CBC_V2_OTHER_COUNTRIES;
 
-namespace CBC_V2.Service.AllCountries
+namespace CBC_V2.Service.OtherCountries
 {
-    public static class AllCountriesEnumLookup
+    public static class OtherCountriesEnumLookup
     {
         public static OECDDocTypeIndic_EnumType GetOECDDocTypeIndicEnumType(string oECDDocTypeIndic)
         {

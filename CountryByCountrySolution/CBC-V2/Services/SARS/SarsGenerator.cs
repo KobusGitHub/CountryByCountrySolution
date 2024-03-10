@@ -27,13 +27,15 @@ namespace CBC_V2.Service.SARS
         {
             this.myGuid = myGuid;
         }
-        public void GenerateFile(FileInfo xlsxFile, string xmlFilePath, bool useUtf8)
+        public void GenerateFile(FileInfo xlsxFile, FileInfo newExcelFile, string xmlFilePath, bool useUtf8)
         {
             CountryByCountryDeclarationStructure cbcds;
 
             using (var package = new ExcelPackage(xlsxFile))
             {
                 cbcds = GetCountryByCountryDeclarationStructure(package);
+
+                package.SaveAs(newExcelFile);
             }
 
             var xml = GetXml(cbcds, useUtf8);
@@ -291,9 +293,11 @@ namespace CBC_V2.Service.SARS
             var messageSpec = new MessageSpec_Type();
             this.receivingCountryClass = new List<ReceivingCountryClass>();
 
-            // cbc_oecd.MessageSpec.SendingEntityIN
-            messageSpec.TransmittingCountry = CountryCode_Type.MU;// TODO 20240305 get FROM file Somewhere SHould be cover page B6
-
+            // 2024-03-10
+            //messageSpec.TransmittingCountry = CountryCode_Type.ZA;
+            var tranCounCellValue = GetExcelStringValue(package, "CoverPage", "B6");
+            var tranCounEnum = SarsEnumLookup.GetCountryCodeEnumType(tranCounCellValue);
+            messageSpec.TransmittingCountry = tranCounEnum;
 
             // ReceivingCountry
             List<CountryCode_Type> ReceivingCountries = new List<CountryCode_Type>();
@@ -317,50 +321,10 @@ namespace CBC_V2.Service.SARS
                 });
                 rowNumber++;
             }
-            //messageSpec.ReceivingCountry = new CountryCode_Type[] { CountryCode_Type.MU,  };  // TODO 20240305 get FROM file Somewhere SHould be cover page B6
 
-            messageSpec.ReceivingCountry = new CountryCode_Type[] {
-                CountryCode_Type.AE,
-                CountryCode_Type.BE,
-                CountryCode_Type.BI,
-                CountryCode_Type.BW,
-                CountryCode_Type.CD,
-                CountryCode_Type.CV,
-                CountryCode_Type.GB,
-                CountryCode_Type.GH,
-                CountryCode_Type.JE,
-                CountryCode_Type.KE,
-                CountryCode_Type.LS,
-                CountryCode_Type.MT,
-                CountryCode_Type.MU,
-                CountryCode_Type.MW,
-                CountryCode_Type.MZ,
-                CountryCode_Type.NG,
-                CountryCode_Type.RW,
-                CountryCode_Type.SA,
-                CountryCode_Type.SD,
-                CountryCode_Type.TG,
-                CountryCode_Type.TZ,
-                CountryCode_Type.UG,
-                CountryCode_Type.US,
-                CountryCode_Type.ZA,
-                CountryCode_Type.ZM,
-                CountryCode_Type.ZW,
-                CountryCode_Type.VG,
-                CountryCode_Type.IL,
-                CountryCode_Type.CA,
-                CountryCode_Type.CL,
-                CountryCode_Type.MX,
-                CountryCode_Type.PE,
-                CountryCode_Type.AR,
-                CountryCode_Type.PY,
-                CountryCode_Type.CO,
-                CountryCode_Type.PL
-            };
-            // TODO 20240305 get FROM file Somewhere SHould be cover page B6
-
-
-
+            // 2024-03-10
+            //messageSpec.ReceivingCountry = new CountryCode_Type[] { CountryCode_Type.ZA };
+            messageSpec.ReceivingCountry = ReceivingCountries.ToArray();
 
 
             // MessageType
@@ -400,15 +364,11 @@ namespace CBC_V2.Service.SARS
 
             messageSpec.Timestamp = DateTime.Now;
 
-
-            messageSpec.SendingEntityIN = GetExcelStringValue(package, "CoverPage", "B8"); ; // TODO Check with SARS B10
+            // 2024-03-10 - We use to not supply SendingEntityIN
+            messageSpec.SendingEntityIN = GetExcelStringValue(package, "CoverPage", "B8");// TODO Check with SARS
 
             // messageSpec.CorrMessageRefId = null;  // This data element is not used for CbC reporting
-
-
-
             return messageSpec;
-
         }
 
 
