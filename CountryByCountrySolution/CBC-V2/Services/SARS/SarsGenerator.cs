@@ -12,6 +12,7 @@ using CBC_V2.models;
 using System.Xml.Serialization;
 using System.IO;
 using System.Xml;
+using System.Text.Json;
 
 namespace CBC_V2.Service.SARS
 {
@@ -226,7 +227,7 @@ namespace CBC_V2.Service.SARS
                 settings.NewLineOnAttributes = true;
 
 
-
+               
                 using (XmlWriter writer = XmlWriter.Create(sww, settings))
                 {
                     xsSubmit.Serialize(writer, cbcfd);
@@ -238,6 +239,12 @@ namespace CBC_V2.Service.SARS
 
         }
 
+
+        public static void WriteJson(CountryByCountryDeclarationStructure cbcfd)
+        {
+            var jsonString = JsonSerializer.Serialize(cbcfd);
+            File.WriteAllText(@"C:\Temp\CBC\20241221\json.txt", jsonString);
+        }
 
         private CBC_SARS_Structure GetCBC_SARS_Structure(ExcelPackage package)
         {
@@ -481,6 +488,11 @@ namespace CBC_V2.Service.SARS
 
                 constEntity.OtherEntityInfo = GetExcelStringValue(package, workbookName, "I" + rowNumber);
 
+                // TODO new release below
+                //if(constEntity.OtherEntityInfo == "")
+                //{
+                //    constEntity.OtherEntityInfo = null;
+                //}
 
                 constEntity.Role = UltimateParentEntityRole_EnumType.CBC801;
                 constEntity.RoleSpecified = true;
