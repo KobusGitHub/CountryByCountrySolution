@@ -40,17 +40,7 @@ namespace CBC_V2
         {
             InitializeComponent();
             lstLog.Items.Clear();
-            // populate currency dropdown with enum names and default to ZAR
-            try
-            {
-                this.cmbCurrency.Items.AddRange(Enum.GetNames(typeof(currCode_Type)));
-                this.cmbCurrency.SelectedItem = "ZAR";
-                this.cmbCurrency.Enabled = !this.ckSars.Checked;
-            }
-            catch
-            {
-                // ignore if enum not available at design time
-            }
+
         }
 
         private void brnBrowseSource_Click(object sender, EventArgs e)
@@ -178,34 +168,8 @@ namespace CBC_V2
             else
             {
                 OtherCountriesGenerator generator = new OtherCountriesGenerator(this.myGuid);
-                // set currency from UI dropdown (default ZAR)
-                try
-                {
-                    if (this.cmbCurrency.SelectedItem != null)
-                    {
-                        generator.Currency = (currCode_Type)Enum.Parse(typeof(currCode_Type), this.cmbCurrency.SelectedItem.ToString());
-                    }
-                }
-                catch
-                {
-                    // fallback to default already set in generator
-                }
                 generator.LogMessageEvent += LogEventHandlerFired;
                 generator.GenerateFile(xlsxFile, newExcelFile, xmlFilePath, rad8.Checked);
-            }
-        }
-
-        private void ckSars_CheckedChanged(object sender, EventArgs e)
-        {
-            // enable currency selection only when not SARS
-            if (this.cmbCurrency != null)
-            {
-                this.cmbCurrency.Enabled = !this.ckSars.Checked;
-                // when SARS is selected, ensure dropdown defaults to ZAR
-                if (this.ckSars.Checked)
-                {
-                    try { this.cmbCurrency.SelectedItem = "ZAR"; } catch { }
-                }
             }
         }
 
@@ -246,10 +210,6 @@ namespace CBC_V2
             lstLog.TopIndex = lstLog.Items.Count - 1;
         }
 
-        private void cmbCurrency_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
-        }
     }
 
 

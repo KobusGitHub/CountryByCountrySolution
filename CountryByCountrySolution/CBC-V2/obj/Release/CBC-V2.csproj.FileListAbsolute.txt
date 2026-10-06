@@ -6,7 +6,6 @@ C:\Git\CountryByCountrySolution\CountryByCountrySolution\CBC-V2\bin\Release\EPPl
 C:\Git\CountryByCountrySolution\CountryByCountrySolution\CBC-V2\obj\Release\CBC_V2.Properties.Resources.resources
 C:\Git\CountryByCountrySolution\CountryByCountrySolution\CBC-V2\obj\Release\CBC-V2.csproj.GenerateResource.cache
 C:\Git\CountryByCountrySolution\CountryByCountrySolution\CBC-V2\obj\Release\CBC-V2.csproj.CoreCompileInputs.cache
-C:\Git\CountryByCountrySolution\CountryByCountrySolution\CBC-V2\obj\Release\CBC-V2.csproj.CopyComplete
 C:\Git\CountryByCountrySolution\CountryByCountrySolution\CBC-V2\obj\Release\CBC-V2.exe
 C:\Git\CountryByCountrySolution\CountryByCountrySolution\CBC-V2\obj\Release\CBC-V2.pdb
 C:\Git\CountryByCountrySolution\CountryByCountrySolution\CBC-V2\obj\Release\CBC_V2.Form2.resources
@@ -31,3 +30,5 @@ C:\Git\CountryByCountrySolution\CountryByCountrySolution\CBC-V2\bin\Release\Syst
 C:\Git\CountryByCountrySolution\CountryByCountrySolution\CBC-V2\bin\Release\System.Text.Json.xml
 C:\Git\CountryByCountrySolution\CountryByCountrySolution\CBC-V2\bin\Release\System.Threading.Tasks.Extensions.xml
 C:\Git\CountryByCountrySolution\CountryByCountrySolution\CBC-V2\bin\Release\System.ValueTuple.xml
+C:\Git\CountryByCountrySolution\CountryByCountrySolution\CBC-V2\obj\Release\CBC-V2.csproj.AssemblyReference.cache
+C:\Git\CountryByCountrySolution\CountryByCountrySolution\CBC-V2\obj\Release\CBC-V2.csproj.Up2Date

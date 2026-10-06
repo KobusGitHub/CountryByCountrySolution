@@ -5,18 +5,17 @@ using System.Text;
 using System.Threading.Tasks;
 using OfficeOpenXml;
 
-using CBC_V2_SARS;
 using CountryByCountryReportV2;
 using CountryByCountryReportV2.models;
 using CBC_V2.models;
 using System.Xml.Serialization;
 using System.IO;
 using System.Xml;
-using System.Text.Json;
+using CBC_V2_OTHER_COUNTRIES;
 
-namespace CBC_V2.Service.SARS
+namespace CBC_V2.Service.OtherCountries
 {
-    public class SarsGenerator
+    public class OtherCountriesGenerator
     {
         List<ReceivingCountryClass> receivingCountryClass = new List<ReceivingCountryClass>();
         List<ConstituentEntitiesSummary> ConstituentEntitiesSummaries = new List<ConstituentEntitiesSummary>();
@@ -24,40 +23,37 @@ namespace CBC_V2.Service.SARS
 
         public event EventHandler<string> LogMessageEvent;
 
-        public SarsGenerator(Guid myGuid)
+        public OtherCountriesGenerator(Guid myGuid)
         {
             this.myGuid = myGuid;
         }
         public void GenerateFile(FileInfo xlsxFile, FileInfo newExcelFile, string xmlFilePath, bool useUtf8)
         {
-            CountryByCountryDeclarationStructure cbcds;
+            CBC_OECD cbcfd;
 
             using (var package = new ExcelPackage(xlsxFile))
             {
-                cbcds = GetCountryByCountryDeclarationStructure(package);
+                cbcfd = GetCBC_OECD(package);
 
                 package.SaveAs(newExcelFile);
             }
 
-            var xml = GetXml(cbcds, useUtf8);
+            var xml = GetXml(cbcfd, useUtf8);
 
             WriteXml(xml, xmlFilePath);
         }
 
-        public CountryByCountryDeclarationStructure GetCountryByCountryDeclarationStructure(ExcelPackage package)
+        public CBC_OECD GetCBC_OECD(ExcelPackage package)
         {
             this.SetupReferences(package);
 
-            var cbcds = new CountryByCountryDeclarationStructure();
-            cbcds.CBC_OECD = new CBC_OECD();
-            cbcds.CBC_SARS = new CBC_SARS_Structure();
+            var cbcfd = new CBC_OECD();
 
-            cbcds.CBC_OECD.version = "2.0";
-            cbcds.CBC_OECD.MessageSpec = GetMessageSpec(package);
-            cbcds.CBC_OECD.CbcBody = GetCbcBodies(package).ToArray();
-            cbcds.CBC_SARS = GetCBC_SARS_Structure(package);
-
-            return cbcds;
+            cbcfd.version = "2.0";
+            cbcfd.MessageSpec = GetMessageSpec(package);
+            cbcfd.CbcBody = GetCbcBodies(package).ToArray();
+          
+            return cbcfd;
 
         }
 
@@ -79,59 +75,45 @@ namespace CBC_V2.Service.SARS
             // MessageRefID
 
             var messageTypeIndic = GetExcelStringValue(p, "CoverPage", "B4");
-
-            switch(messageTypeIndic)
+            if (messageTypeIndic == "CBC402") // Corrected Data
             {
-                case "CBC402":
-                    // Corrected Data
-                    this.SetExcelStringValue(p, "CoverPage", "B2", docRefPrefix + myGuid);
-                    this.SetExcelStringValue(p, "CoverPage", "B3", "");
-                    this.SetExcelStringValue(p, "CoverPage", "B4", "CBC402");
-                    break;
-                case "CBC401":
-                    // New Data
-                    this.SetExcelStringValue(p, "CoverPage", "B2", docRefPrefix + myGuid);
-                    this.SetExcelStringValue(p, "CoverPage", "B3", "");
-                    this.SetExcelStringValue(p, "CoverPage", "B4", "CBC401");
-                    break;
+                var docRefValue = GetExcelStringValue(p, "CoverPage", "B2");
+                if (string.IsNullOrEmpty(docRefValue))
+                {
+                    LogMessageEvent.Invoke(this, "Correction on empty reference INVALID!");
+                    throw new ArgumentException("Correction on empty reference INVALID!");
+                }
+                this.SetExcelStringValue(p, "CoverPage", "B3", docRefValue);
+
             }
+            else if (messageTypeIndic == "CBC401") // New Data
+            {
+                this.SetExcelStringValue(p, "CoverPage", "B3", "");
+                this.SetExcelStringValue(p, "CoverPage", "B4", "CBC401");
+
+            }
+            this.SetExcelStringValue(p, "CoverPage", "B2", docRefPrefix + myGuid);
+
+
 
 
             // ReportingEnt-DocSpec-DocRefID
             var repEntDocTypeIndic = GetExcelStringValue(p, "CoverPage", "B17");
-
-            switch (repEntDocTypeIndic)
+            if (repEntDocTypeIndic == "OECD2") // Corrected Data
             {
-                case "OECD0":
-                    // Resent Data
-
-                    var origDocRefValue = GetExcelStringValue(p, "CoverPage", "B18");
-                    if(origDocRefValue == "")
-                    {
-                        LogMessageEvent.Invoke(this, "Resent on empty reference INVALID!");
-                        throw new ArgumentException("Resent on empty reference INVALID!");
-                    }
-
-                    this.SetExcelStringValue(p, "CoverPage", "B19", "");
-                    break;
-                case "OECD1":
-                    // New Data
-                    this.SetExcelStringValue(p, "CoverPage", "B18", docRefPrefix + Guid.NewGuid());
-                    this.SetExcelStringValue(p, "CoverPage", "B19", "");
-                    break;
-                case "OECD2":
-                    // Corrected Data
-                    var oldDocRefValue = GetExcelStringValue(p, "CoverPage", "B18");
-                    if (string.IsNullOrEmpty(oldDocRefValue))
-                    {
-                        LogMessageEvent.Invoke(this, "Correction on empty reference INVALID!");
-                        throw new ArgumentException("Correction on empty reference INVALID!");
-                    }
-
-                    this.SetExcelStringValue(p, "CoverPage", "B19", oldDocRefValue);
-                    this.SetExcelStringValue(p, "CoverPage", "B18", docRefPrefix + Guid.NewGuid());
-                    break;
+                var docRefValue = GetExcelStringValue(p, "CoverPage", "B18");
+                if (string.IsNullOrEmpty(docRefValue))
+                {
+                    LogMessageEvent.Invoke(this, "Correction on empty reference INVALID!");
+                    throw new ArgumentException("Correction on empty reference INVALID!");
+                }
+                this.SetExcelStringValue(p, "CoverPage", "B19", docRefValue);
             }
+            else if (repEntDocTypeIndic == "OECD1") // New Data
+            {
+                this.SetExcelStringValue(p, "CoverPage", "B19", "");
+            }
+            this.SetExcelStringValue(p, "CoverPage", "B18", docRefPrefix + Guid.NewGuid());
 
 
             // SUMMARY
@@ -145,38 +127,21 @@ namespace CBC_V2.Service.SARS
                 }
 
                 var docTypeIndec = GetExcelStringValue(p, "SUMMARY", "M" + rowNumber);
-                switch (docTypeIndec)
+                if (docTypeIndec == "OECD2") // Corrected Data
                 {
-                    case "OECD0":
-                        // Resent Data
-                        var oldDocRefValue = GetExcelStringValue(p, "SUMMARY", "N" + rowNumber);
-                        if(string.IsNullOrEmpty(oldDocRefValue))
-                        {
-                            LogMessageEvent.Invoke(this, "Resent on empty reference INVALID!");
-                            throw new ArgumentException("Resent on empty reference INVALID!");
-                        }
-                        this.SetExcelStringValue(p, "SUMMARY", "O" + rowNumber, "");
-                        break;
-                    case "OECD1":
-                        // New Data
-                        this.SetExcelStringValue(p, "SUMMARY", "N" + rowNumber, docRefPrefix + Guid.NewGuid());
-                        this.SetExcelStringValue(p, "SUMMARY", "O" + rowNumber, "");
-
-                        break;
-                    case "OECD2":
-                        // Corrected Data
-
-                        var origDocRefValue = GetExcelStringValue(p, "SUMMARY", "N" + rowNumber);
-                        if (string.IsNullOrEmpty(origDocRefValue))
-                        {
-                            LogMessageEvent.Invoke(this, "Correction on empty reference INVALID!");
-                            throw new ArgumentException("Correction on empty reference INVALID!");
-                        }
-                        this.SetExcelStringValue(p, "SUMMARY", "N" + rowNumber, docRefPrefix + Guid.NewGuid());
-                        this.SetExcelStringValue(p, "SUMMARY", "O" + rowNumber, origDocRefValue);
-
-                        break;
+                    var docRefValue = GetExcelStringValue(p, "SUMMARY", "N" + rowNumber);
+                    if (string.IsNullOrEmpty(docRefValue))
+                    {
+                        LogMessageEvent.Invoke(this, "Correction on empty reference INVALID!");
+                        throw new ArgumentException("Correction on empty reference INVALID!");
+                    }
+                    this.SetExcelStringValue(p, "SUMMARY", "O" + rowNumber, docRefValue);
                 }
+                else if (docTypeIndec == "OECD1") // New Data
+                {
+                    this.SetExcelStringValue(p, "SUMMARY", "O" + rowNumber, "");
+                }
+                this.SetExcelStringValue(p, "SUMMARY", "N" + rowNumber, docRefPrefix + Guid.NewGuid());
 
                 rowNumber++;
             }
@@ -193,40 +158,21 @@ namespace CBC_V2.Service.SARS
                 }
 
                 var docTypeIndec = GetExcelStringValue(p, "Additional Information", "D" + rowNumber);
-
-
-                switch (docTypeIndec)
+                if (docTypeIndec == "OECD2") // Corrected Data
                 {
-                    case "OECD0":
-                        // Resent Data
-                        var oldDocRefValue = GetExcelStringValue(p, "Additional Information", "E" + rowNumber);
-                        if (string.IsNullOrEmpty(oldDocRefValue))
-                        {
-                            LogMessageEvent.Invoke(this, "Resent on empty reference INVALID!");
-                            throw new ArgumentException("Resent on empty reference INVALID!");
-                        }
-                        this.SetExcelStringValue(p, "Additional Information", "F" + rowNumber, "");
-                        break;
-                    case "OECD1":
-                        // New Data
-                        this.SetExcelStringValue(p, "Additional Information", "E" + rowNumber, docRefPrefix + Guid.NewGuid());
-                        this.SetExcelStringValue(p, "Additional Information", "F" + rowNumber, "");
-
-                        break;
-                    case "OECD2":
-                        // Corrected Data
-
-                        var origDocRefValue = GetExcelStringValue(p, "Additional Information", "E" + rowNumber);
-                        if (string.IsNullOrEmpty(origDocRefValue))
-                        {
-                            LogMessageEvent.Invoke(this, "Correction on empty reference INVALID!");
-                            throw new ArgumentException("Correction on empty reference INVALID!");
-                        }
-                        this.SetExcelStringValue(p, "Additional Information", "E" + rowNumber, docRefPrefix + Guid.NewGuid());
-                        this.SetExcelStringValue(p, "Additional Information", "F" + rowNumber, origDocRefValue);
-
-                        break;
+                    var docRefValue = GetExcelStringValue(p, "Additional Information", "E" + rowNumber);
+                    if (string.IsNullOrEmpty(docRefValue))
+                    {
+                        LogMessageEvent.Invoke(this, "Correction on empty reference INVALID!");
+                        throw new ArgumentException("Correction on empty reference INVALID!");
+                    }
+                    this.SetExcelStringValue(p, "Additional Information", "F" + rowNumber, docRefValue);
                 }
+                else if (docTypeIndec == "OECD1") // New Data
+                {
+                    this.SetExcelStringValue(p, "Additional Information", "F" + rowNumber, "");
+                }
+                this.SetExcelStringValue(p, "Additional Information", "E" + rowNumber, docRefPrefix + Guid.NewGuid());
 
                 rowNumber++;
             }
@@ -245,7 +191,7 @@ namespace CBC_V2.Service.SARS
 
         }
 
-        private string GetXml(CountryByCountryDeclarationStructure cbcds, bool useUtf8)
+        private string GetXml(CBC_OECD cbcds, bool useUtf8)
         {
             if (useUtf8)
             {
@@ -254,9 +200,9 @@ namespace CBC_V2.Service.SARS
             return GetUtf16XmlString(cbcds);
         }
 
-        public static string GetUtf8XmlString(CountryByCountryDeclarationStructure cbcfd)
+        public static string GetUtf8XmlString(CBC_OECD cbcfd)
         {
-            var serializer = new XmlSerializer(typeof(CountryByCountryDeclarationStructure));
+            var serializer = new XmlSerializer(typeof(CBC_OECD));
             var xml = "";
             using (StringWriter writer = new Utf8StringWriter())
             {
@@ -266,10 +212,10 @@ namespace CBC_V2.Service.SARS
             return xml;
         }
 
-        public static string GetUtf16XmlString(CountryByCountryDeclarationStructure cbcfd)
+        public static string GetUtf16XmlString(CBC_OECD cbcfd)
         {
             var xml = "";
-            XmlSerializer xsSubmit = new XmlSerializer(typeof(CountryByCountryDeclarationStructure));
+            XmlSerializer xsSubmit = new XmlSerializer(typeof(CBC_OECD));
             using (var sww = new StringWriter())
             {
                 XmlWriterSettings settings = new XmlWriterSettings();
@@ -277,7 +223,7 @@ namespace CBC_V2.Service.SARS
                 settings.NewLineOnAttributes = true;
 
 
-               
+
                 using (XmlWriter writer = XmlWriter.Create(sww, settings))
                 {
                     xsSubmit.Serialize(writer, cbcfd);
@@ -290,70 +236,14 @@ namespace CBC_V2.Service.SARS
         }
 
 
-        public static void WriteJson(CountryByCountryDeclarationStructure cbcfd)
-        {
-            var jsonString = JsonSerializer.Serialize(cbcfd);
-            File.WriteAllText(@"C:\Temp\CBC\20241221\json.txt", jsonString);
-        }
-
-        private CBC_SARS_Structure GetCBC_SARS_Structure(ExcelPackage package)
-        {
-            var sarsStructure = new CBC_SARS_Structure();
-
-            sarsStructure.ContactDetails = new CBC_SARS_StructureContactDetails
-            {
-                Surname = this.GetExcelStringValue(package, "CoverPage", "B22"),
-                FirstNames = this.GetExcelStringValue(package, "CoverPage", "B23"),
-                BusTelNo1 = this.GetExcelStringValue(package, "CoverPage", "B24"),
-                //BusTelNo2 = this.GetExcelStringValue(package, "CoverPage", "B25"),
-                CellNo = this.GetExcelStringValue(package, "CoverPage", "B26"),
-                EmailAddress = this.GetExcelStringValue(package, "CoverPage", "B27")
-            };
-
-            var busTelCont2Value = this.GetExcelStringValue(package, "CoverPage", "B25");
-            if (!string.IsNullOrEmpty(busTelCont2Value))
-            {
-                sarsStructure.ContactDetails.BusTelNo2 = busTelCont2Value;
-            }
-
-            sarsStructure.DeclarationDate = DateTime.Parse(this.GetExcelStringValue(package, "CoverPage", "B21"));
-            sarsStructure.DeclarationDateSpecified = true;
-
-            sarsStructure.TotalConsolidatedMNEGroupRevenue = new FinancialAmtWithCurrencyStructure()
-            {
-                CurrencyCode = "ZAR",
-                Amount = Convert.ToInt64(this.GetExcelDoubleValue(package, "CoverPage", "B28").Value)
-            };
-            sarsStructure.NoOfTaxJurisdictions = Convert.ToInt16(this.receivingCountryClass.Count());
-
-
-            List<CBC_SARS_StructureTaxJurisdiction> stjList = new List<CBC_SARS_StructureTaxJurisdiction>();
-
-            foreach (var summary in this.ConstituentEntitiesSummaries)
-            {
-                stjList.Add(new CBC_SARS_StructureTaxJurisdiction
-                {
-                    NoOfConstituentEntities = Convert.ToInt16(summary.ConstituentEntityCount)
-                });
-            }
-
-
-            sarsStructure.TaxJurisdictions = stjList.ToArray();
-
-            return sarsStructure;
-
-        }
-
-
         private MessageSpec_Type GetMessageSpec(ExcelPackage package)
         {
             var messageSpec = new MessageSpec_Type();
             this.receivingCountryClass = new List<ReceivingCountryClass>();
 
-            // 2024-03-10
-            //messageSpec.TransmittingCountry = CountryCode_Type.ZA;
+            // messageSpec.TransmittingCountry = CountryCode_Type.MU;// TODO 20240305 get FROM file Somewhere SHould be cover page B6
             var tranCounCellValue = GetExcelStringValue(package, "CoverPage", "B6");
-            var tranCounEnum = SarsEnumLookup.GetCountryCodeEnumType(tranCounCellValue);
+            var tranCounEnum = OtherCountriesEnumLookup.GetCountryCodeEnumType(tranCounCellValue);
             messageSpec.TransmittingCountry = tranCounEnum;
 
             // ReceivingCountry
@@ -369,7 +259,7 @@ namespace CBC_V2.Service.SARS
                 }
 
 
-                ReceivingCountries.Add(SarsEnumLookup.GetCountryCodeEnumType(cellValue)); // (S:SUMMARY - Cells:A)
+                ReceivingCountries.Add(OtherCountriesEnumLookup.GetCountryCodeEnumType(cellValue)); // (S:SUMMARY - Cells:A)
 
                 this.receivingCountryClass.Add(new ReceivingCountryClass
                 {
@@ -379,9 +269,49 @@ namespace CBC_V2.Service.SARS
                 rowNumber++;
             }
 
-            // 2024-03-10
-            //messageSpec.ReceivingCountry = new CountryCode_Type[] { CountryCode_Type.ZA };
+            //messageSpec.ReceivingCountry = new CountryCode_Type[] { CountryCode_Type.MU,  };  // TODO 20240305 get FROM file Somewhere SHould be cover page B6
+            //messageSpec.ReceivingCountry = new CountryCode_Type[] {
+            //    CountryCode_Type.AE,
+            //    CountryCode_Type.BE,
+            //    CountryCode_Type.BI,
+            //    CountryCode_Type.BW,
+            //    CountryCode_Type.CD,
+            //    CountryCode_Type.CV,
+            //    CountryCode_Type.GB,
+            //    CountryCode_Type.GH,
+            //    CountryCode_Type.JE,
+            //    CountryCode_Type.KE,
+            //    CountryCode_Type.LS,
+            //    CountryCode_Type.MT,
+            //    CountryCode_Type.MU,
+            //    CountryCode_Type.MW,
+            //    CountryCode_Type.MZ,
+            //    CountryCode_Type.NG,
+            //    CountryCode_Type.RW,
+            //    CountryCode_Type.SA,
+            //    CountryCode_Type.SD,
+            //    CountryCode_Type.TG,
+            //    CountryCode_Type.TZ,
+            //    CountryCode_Type.UG,
+            //    CountryCode_Type.US,
+            //    CountryCode_Type.ZA,
+            //    CountryCode_Type.ZM,
+            //    CountryCode_Type.ZW,
+            //    CountryCode_Type.VG,
+            //    CountryCode_Type.IL,
+            //    CountryCode_Type.CA,
+            //    CountryCode_Type.CL,
+            //    CountryCode_Type.MX,
+            //    CountryCode_Type.PE,
+            //    CountryCode_Type.AR,
+            //    CountryCode_Type.PY,
+            //    CountryCode_Type.CO,
+            //    CountryCode_Type.PL
+            //};
             messageSpec.ReceivingCountry = ReceivingCountries.ToArray();
+
+
+
 
 
             // MessageType
@@ -405,15 +335,13 @@ namespace CBC_V2.Service.SARS
             // MessageRefId
             messageSpec.MessageRefId = GetExcelStringValue(package, "CoverPage", "B2");// "ZA2019BAW"; // (S: CoverPage; Cells:B2)
 
-
-           
             if (!string.IsNullOrEmpty(GetExcelStringValue(package, "CoverPage", "B3")))
             {
                 messageSpec.CorrMessageRefId = new string[] { GetExcelStringValue(package, "CoverPage", "B3") };
             }
 
             // MessageTypeIndic
-            messageSpec.MessageTypeIndic = SarsEnumLookup.GetCbcMessageTypeIndicEnumType(GetExcelStringValue(package, "CoverPage", "B4")); // CbcMessageTypeIndic_EnumType.CBC401; //  (S: CoverPage; Cells:B3)
+            messageSpec.MessageTypeIndic = OtherCountriesEnumLookup.GetCbcMessageTypeIndicEnumType(GetExcelStringValue(package, "CoverPage", "B4")); // CbcMessageTypeIndic_EnumType.CBC401; //  (S: CoverPage; Cells:B3)
 
             // Removed in V2.0
             // messageSpec.MessageTypeIndicSpecified = true;
@@ -423,11 +351,12 @@ namespace CBC_V2.Service.SARS
 
             messageSpec.Timestamp = DateTime.Now;
 
-            // 2024-03-10 - We use to not supply SendingEntityIN
-            messageSpec.SendingEntityIN = GetExcelStringValue(package, "CoverPage", "B8");// TODO Check with SARS
+            messageSpec.SendingEntityIN = GetExcelStringValue(package, "CoverPage", "B8"); ; // TODO Check with SARS B10
 
             // messageSpec.CorrMessageRefId = null;  // This data element is not used for CbC reporting
+
             return messageSpec;
+
         }
 
 
@@ -458,7 +387,7 @@ namespace CBC_V2.Service.SARS
             {
                 var cbcRep = new CorrectableCbcReport_Type();
 
-                cbcRep.ResCountryCode = SarsEnumLookup.GetCountryCodeEnumType(recCountryCls.CountryCode);
+                cbcRep.ResCountryCode = OtherCountriesEnumLookup.GetCountryCodeEnumType(recCountryCls.CountryCode);
 
                 var docTypeIndic = GetExcelStringValue(package, "SUMMARY", "M" + recCountryCls.RowNumber);
                 var docRefId = GetExcelStringValue(package, "SUMMARY", "N" + recCountryCls.RowNumber);
@@ -515,36 +444,31 @@ namespace CBC_V2.Service.SARS
                 {
                     if (!string.IsNullOrEmpty(actCode))
                     {
-                        bizActivities.Add(SarsEnumLookup.GetCbcBizActivityTypeEnumType(actCode));
+                        bizActivities.Add(OtherCountriesEnumLookup.GetCbcBizActivityTypeEnumType(actCode));
                     }
                 }
                 constEntity.BizActivities = bizActivities.ToArray();
 
 
 
-                var resCountryCode = SarsEnumLookup.GetCountryCodeEnumType(GetExcelStringValue(package, workbookName, "G" + rowNumber));
-                var tinIssueBy = SarsEnumLookup.GetCountryCodeEnumType(GetExcelStringValue(package, workbookName, "E" + rowNumber));
+                var resCountryCode = OtherCountriesEnumLookup.GetCountryCodeEnumType(GetExcelStringValue(package, workbookName, "G" + rowNumber));
+                var tinIssueBy = OtherCountriesEnumLookup.GetCountryCodeEnumType(GetExcelStringValue(package, workbookName, "E" + rowNumber));
                 var tinValue = GetExcelStringValue(package, workbookName, "D" + rowNumber);
-                var OrgInTypeIssueBy = SarsEnumLookup.GetCountryCodeEnumType(GetExcelStringValue(package, workbookName, "C" + rowNumber));
+                var OrgInTypeIssueBy = OtherCountriesEnumLookup.GetCountryCodeEnumType(GetExcelStringValue(package, workbookName, "C" + rowNumber));
                 var orgInTypeValue = GetExcelStringValue(package, workbookName, "B" + rowNumber);
                 var nameOrg = GetExcelStringValue(package, workbookName, "A" + rowNumber);
-                var addCountryCode = SarsEnumLookup.GetCountryCodeEnumType(GetExcelStringValue(package, workbookName, "K" + rowNumber));
+                var addCountryCode = OtherCountriesEnumLookup.GetCountryCodeEnumType(GetExcelStringValue(package, workbookName, "K" + rowNumber));
                 var adds = GetExcelStringValue(package, workbookName, "J" + rowNumber).Split(';');
-                var legAddType = SarsEnumLookup.GetOECDLegalAddressTypeEnumType(GetExcelStringValue(package, workbookName, "L" + rowNumber));
+                var legAddType = OtherCountriesEnumLookup.GetOECDLegalAddressTypeEnumType(GetExcelStringValue(package, workbookName, "L" + rowNumber));
 
                 constEntity.ConstEntity = GetOrganisationPartyType(resCountryCode, tinIssueBy, tinValue, OrgInTypeIssueBy, orgInTypeValue, nameOrg, addCountryCode, adds, legAddType);
 
 
-                constEntity.IncorpCountryCode = SarsEnumLookup.GetCountryCodeEnumType(GetExcelStringValue(package, workbookName, "F" + rowNumber));
+                constEntity.IncorpCountryCode = OtherCountriesEnumLookup.GetCountryCodeEnumType(GetExcelStringValue(package, workbookName, "F" + rowNumber));
                 constEntity.IncorpCountryCodeSpecified = true;
 
                 constEntity.OtherEntityInfo = GetExcelStringValue(package, workbookName, "I" + rowNumber);
 
-                // TODO new release below
-                //if(constEntity.OtherEntityInfo == "")
-                //{
-                //    constEntity.OtherEntityInfo = null;
-                //}
 
                 constEntity.Role = UltimateParentEntityRole_EnumType.CBC801;
                 constEntity.RoleSpecified = true;
@@ -714,7 +638,7 @@ namespace CBC_V2.Service.SARS
                 {
                     continue;
                 }
-                codeList.Add(SarsEnumLookup.GetCountryCodeEnumType(val));
+                codeList.Add(OtherCountriesEnumLookup.GetCountryCodeEnumType(val));
             }
 
 
@@ -733,7 +657,7 @@ namespace CBC_V2.Service.SARS
                 {
                     continue;
                 }
-                refList.Add(SarsEnumLookup.GetCbcSummaryListElementsType_EnumType(val));
+                refList.Add(OtherCountriesEnumLookup.GetCbcSummaryListElementsType_EnumType(val));
             }
 
             return refList.ToArray();
@@ -745,30 +669,26 @@ namespace CBC_V2.Service.SARS
             var repEnt = new CorrectableReportingEntity_Type();
 
 
-            var resCountryCode = SarsEnumLookup.GetCountryCodeEnumType(GetExcelStringValue(package, "CoverPage", "B6"));
-            var tinIssueBy = SarsEnumLookup.GetCountryCodeEnumType(GetExcelStringValue(package, "CoverPage", "B7"));
+            var resCountryCode = OtherCountriesEnumLookup.GetCountryCodeEnumType(GetExcelStringValue(package, "CoverPage", "B6"));
+            var tinIssueBy = OtherCountriesEnumLookup.GetCountryCodeEnumType(GetExcelStringValue(package, "CoverPage", "B7"));
             var tinValue = GetExcelStringValue(package, "CoverPage", "B8");
-            var OrgInTypeIssueBy = SarsEnumLookup.GetCountryCodeEnumType(GetExcelStringValue(package, "CoverPage", "B9"));
+            var OrgInTypeIssueBy = OtherCountriesEnumLookup.GetCountryCodeEnumType(GetExcelStringValue(package, "CoverPage", "B9"));
             var orgInTypeValue = GetExcelStringValue(package, "CoverPage", "B10");
             var nameOrg = GetExcelStringValue(package, "CoverPage", "B11");
-            var addCountryCode = SarsEnumLookup.GetCountryCodeEnumType(GetExcelStringValue(package, "CoverPage", "B12"));
+            var addCountryCode = OtherCountriesEnumLookup.GetCountryCodeEnumType(GetExcelStringValue(package, "CoverPage", "B12"));
             var adds = GetExcelStringValue(package, "CoverPage", "B13").Split(';');
-            var legAddType = SarsEnumLookup.GetOECDLegalAddressTypeEnumType(GetExcelStringValue(package, "CoverPage", "B14"));
+            var legAddType = OtherCountriesEnumLookup.GetOECDLegalAddressTypeEnumType(GetExcelStringValue(package, "CoverPage", "B14"));
 
             repEnt.Entity = GetOrganisationPartyType(resCountryCode, tinIssueBy, tinValue, OrgInTypeIssueBy, orgInTypeValue, nameOrg, addCountryCode, adds, legAddType);
 
 
 
-            repEnt.ReportingRole = SarsEnumLookup.GetCbcReportingRoleEnumType(GetExcelStringValue(package, "CoverPage", "B16")); // CbcReportingRole_EnumType.CBC701; // (S: CoverPage; Cells: B17)
+            repEnt.ReportingRole = OtherCountriesEnumLookup.GetCbcReportingRoleEnumType(GetExcelStringValue(package, "CoverPage", "B16")); // CbcReportingRole_EnumType.CBC701; // (S: CoverPage; Cells: B17)
 
 
             var docTypeIndic = GetExcelStringValue(package, "CoverPage", "B17");
-
             var docRefId = GetExcelStringValue(package, "CoverPage", "B18");
             var corrDocRefId = GetExcelStringValue(package, "CoverPage", "B19");
-
-
-
             var corrMessageRefId = GetExcelStringValue(package, "CoverPage", "B3");
             repEnt.DocSpec = GetDocSpec(package, docTypeIndic, docRefId, corrDocRefId, corrMessageRefId);
 
@@ -844,25 +764,9 @@ namespace CBC_V2.Service.SARS
 
         public DocSpec_Type GetDocSpec(ExcelPackage package, string docTypeIndic, string docRefId, string corrDocRefId, string corrMessageRefId)
         {
-
-
-            switch (docTypeIndic)
-            {
-                case "OCED0":
-                    // Resent Data
-                    break;
-                case "OECD1":
-                    // New Data
-                    break;
-                case "OECD2":
-                    // Corrected Data
-                    break;
-            }
-
-
             DocSpec_Type docSpec = new DocSpec_Type
             {
-                DocTypeIndic = SarsEnumLookup.GetOECDDocTypeIndicEnumType(docTypeIndic),
+                DocTypeIndic = OtherCountriesEnumLookup.GetOECDDocTypeIndicEnumType(docTypeIndic),
                 DocRefId = docRefId,
             };
 

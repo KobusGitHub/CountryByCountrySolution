@@ -17,6 +17,8 @@ namespace CBC_V2.Service.OtherCountries
 {
     public class OtherCountriesGenerator
     {
+        public currCode_Type Currency { get; set; }
+
         List<ReceivingCountryClass> receivingCountryClass = new List<ReceivingCountryClass>();
         List<ConstituentEntitiesSummary> ConstituentEntitiesSummaries = new List<ConstituentEntitiesSummary>();
         Guid myGuid;
@@ -26,6 +28,8 @@ namespace CBC_V2.Service.OtherCountries
         public OtherCountriesGenerator(Guid myGuid)
         {
             this.myGuid = myGuid;
+            // default to ZAR to preserve existing behaviour
+            this.Currency = currCode_Type.ZAR;
         }
         public void GenerateFile(FileInfo xlsxFile, FileInfo newExcelFile, string xmlFilePath, bool useUtf8)
         {
@@ -75,45 +79,59 @@ namespace CBC_V2.Service.OtherCountries
             // MessageRefID
 
             var messageTypeIndic = GetExcelStringValue(p, "CoverPage", "B4");
-            if (messageTypeIndic == "CBC402") // Corrected Data
+
+            switch (messageTypeIndic)
             {
-                var docRefValue = GetExcelStringValue(p, "CoverPage", "B2");
-                if (string.IsNullOrEmpty(docRefValue))
-                {
-                    LogMessageEvent.Invoke(this, "Correction on empty reference INVALID!");
-                    throw new ArgumentException("Correction on empty reference INVALID!");
-                }
-                this.SetExcelStringValue(p, "CoverPage", "B3", docRefValue);
-
+                case "CBC402":
+                    // Corrected Data
+                    this.SetExcelStringValue(p, "CoverPage", "B2", docRefPrefix + myGuid);
+                    this.SetExcelStringValue(p, "CoverPage", "B3", "");
+                    this.SetExcelStringValue(p, "CoverPage", "B4", "CBC402");
+                    break;
+                case "CBC401":
+                    // New Data
+                    this.SetExcelStringValue(p, "CoverPage", "B2", docRefPrefix + myGuid);
+                    this.SetExcelStringValue(p, "CoverPage", "B3", "");
+                    this.SetExcelStringValue(p, "CoverPage", "B4", "CBC401");
+                    break;
             }
-            else if (messageTypeIndic == "CBC401") // New Data
-            {
-                this.SetExcelStringValue(p, "CoverPage", "B3", "");
-                this.SetExcelStringValue(p, "CoverPage", "B4", "CBC401");
-
-            }
-            this.SetExcelStringValue(p, "CoverPage", "B2", docRefPrefix + myGuid);
-
-
 
 
             // ReportingEnt-DocSpec-DocRefID
             var repEntDocTypeIndic = GetExcelStringValue(p, "CoverPage", "B17");
-            if (repEntDocTypeIndic == "OECD2") // Corrected Data
+
+            switch (repEntDocTypeIndic)
             {
-                var docRefValue = GetExcelStringValue(p, "CoverPage", "B18");
-                if (string.IsNullOrEmpty(docRefValue))
-                {
-                    LogMessageEvent.Invoke(this, "Correction on empty reference INVALID!");
-                    throw new ArgumentException("Correction on empty reference INVALID!");
-                }
-                this.SetExcelStringValue(p, "CoverPage", "B19", docRefValue);
+                case "OECD0":
+                    // Resent Data
+
+                    var origDocRefValue = GetExcelStringValue(p, "CoverPage", "B18");
+                    if (origDocRefValue == "")
+                    {
+                        LogMessageEvent.Invoke(this, "Resent on empty reference INVALID!");
+                        throw new ArgumentException("Resent on empty reference INVALID!");
+                    }
+
+                    this.SetExcelStringValue(p, "CoverPage", "B19", "");
+                    break;
+                case "OECD1":
+                    // New Data
+                    this.SetExcelStringValue(p, "CoverPage", "B18", docRefPrefix + Guid.NewGuid());
+                    this.SetExcelStringValue(p, "CoverPage", "B19", "");
+                    break;
+                case "OECD2":
+                    // Corrected Data
+                    var oldDocRefValue = GetExcelStringValue(p, "CoverPage", "B18");
+                    if (string.IsNullOrEmpty(oldDocRefValue))
+                    {
+                        LogMessageEvent.Invoke(this, "Correction on empty reference INVALID!");
+                        throw new ArgumentException("Correction on empty reference INVALID!");
+                    }
+
+                    this.SetExcelStringValue(p, "CoverPage", "B19", oldDocRefValue);
+                    this.SetExcelStringValue(p, "CoverPage", "B18", docRefPrefix + Guid.NewGuid());
+                    break;
             }
-            else if (repEntDocTypeIndic == "OECD1") // New Data
-            {
-                this.SetExcelStringValue(p, "CoverPage", "B19", "");
-            }
-            this.SetExcelStringValue(p, "CoverPage", "B18", docRefPrefix + Guid.NewGuid());
 
 
             // SUMMARY
@@ -127,21 +145,38 @@ namespace CBC_V2.Service.OtherCountries
                 }
 
                 var docTypeIndec = GetExcelStringValue(p, "SUMMARY", "M" + rowNumber);
-                if (docTypeIndec == "OECD2") // Corrected Data
+                switch (docTypeIndec)
                 {
-                    var docRefValue = GetExcelStringValue(p, "SUMMARY", "N" + rowNumber);
-                    if (string.IsNullOrEmpty(docRefValue))
-                    {
-                        LogMessageEvent.Invoke(this, "Correction on empty reference INVALID!");
-                        throw new ArgumentException("Correction on empty reference INVALID!");
-                    }
-                    this.SetExcelStringValue(p, "SUMMARY", "O" + rowNumber, docRefValue);
+                    case "OECD0":
+                        // Resent Data
+                        var oldDocRefValue = GetExcelStringValue(p, "SUMMARY", "N" + rowNumber);
+                        if (string.IsNullOrEmpty(oldDocRefValue))
+                        {
+                            LogMessageEvent.Invoke(this, "Resent on empty reference INVALID!");
+                            throw new ArgumentException("Resent on empty reference INVALID!");
+                        }
+                        this.SetExcelStringValue(p, "SUMMARY", "O" + rowNumber, "");
+                        break;
+                    case "OECD1":
+                        // New Data
+                        this.SetExcelStringValue(p, "SUMMARY", "N" + rowNumber, docRefPrefix + Guid.NewGuid());
+                        this.SetExcelStringValue(p, "SUMMARY", "O" + rowNumber, "");
+
+                        break;
+                    case "OECD2":
+                        // Corrected Data
+
+                        var origDocRefValue = GetExcelStringValue(p, "SUMMARY", "N" + rowNumber);
+                        if (string.IsNullOrEmpty(origDocRefValue))
+                        {
+                            LogMessageEvent.Invoke(this, "Correction on empty reference INVALID!");
+                            throw new ArgumentException("Correction on empty reference INVALID!");
+                        }
+                        this.SetExcelStringValue(p, "SUMMARY", "N" + rowNumber, docRefPrefix + Guid.NewGuid());
+                        this.SetExcelStringValue(p, "SUMMARY", "O" + rowNumber, origDocRefValue);
+
+                        break;
                 }
-                else if (docTypeIndec == "OECD1") // New Data
-                {
-                    this.SetExcelStringValue(p, "SUMMARY", "O" + rowNumber, "");
-                }
-                this.SetExcelStringValue(p, "SUMMARY", "N" + rowNumber, docRefPrefix + Guid.NewGuid());
 
                 rowNumber++;
             }
@@ -158,21 +193,40 @@ namespace CBC_V2.Service.OtherCountries
                 }
 
                 var docTypeIndec = GetExcelStringValue(p, "Additional Information", "D" + rowNumber);
-                if (docTypeIndec == "OECD2") // Corrected Data
+
+
+                switch (docTypeIndec)
                 {
-                    var docRefValue = GetExcelStringValue(p, "Additional Information", "E" + rowNumber);
-                    if (string.IsNullOrEmpty(docRefValue))
-                    {
-                        LogMessageEvent.Invoke(this, "Correction on empty reference INVALID!");
-                        throw new ArgumentException("Correction on empty reference INVALID!");
-                    }
-                    this.SetExcelStringValue(p, "Additional Information", "F" + rowNumber, docRefValue);
+                    case "OECD0":
+                        // Resent Data
+                        var oldDocRefValue = GetExcelStringValue(p, "Additional Information", "E" + rowNumber);
+                        if (string.IsNullOrEmpty(oldDocRefValue))
+                        {
+                            LogMessageEvent.Invoke(this, "Resent on empty reference INVALID!");
+                            throw new ArgumentException("Resent on empty reference INVALID!");
+                        }
+                        this.SetExcelStringValue(p, "Additional Information", "F" + rowNumber, "");
+                        break;
+                    case "OECD1":
+                        // New Data
+                        this.SetExcelStringValue(p, "Additional Information", "E" + rowNumber, docRefPrefix + Guid.NewGuid());
+                        this.SetExcelStringValue(p, "Additional Information", "F" + rowNumber, "");
+
+                        break;
+                    case "OECD2":
+                        // Corrected Data
+
+                        var origDocRefValue = GetExcelStringValue(p, "Additional Information", "E" + rowNumber);
+                        if (string.IsNullOrEmpty(origDocRefValue))
+                        {
+                            LogMessageEvent.Invoke(this, "Correction on empty reference INVALID!");
+                            throw new ArgumentException("Correction on empty reference INVALID!");
+                        }
+                        this.SetExcelStringValue(p, "Additional Information", "E" + rowNumber, docRefPrefix + Guid.NewGuid());
+                        this.SetExcelStringValue(p, "Additional Information", "F" + rowNumber, origDocRefValue);
+
+                        break;
                 }
-                else if (docTypeIndec == "OECD1") // New Data
-                {
-                    this.SetExcelStringValue(p, "Additional Information", "F" + rowNumber, "");
-                }
-                this.SetExcelStringValue(p, "Additional Information", "E" + rowNumber, docRefPrefix + Guid.NewGuid());
 
                 rowNumber++;
             }
@@ -397,7 +451,7 @@ namespace CBC_V2.Service.OtherCountries
 
 
                 // Summary
-                cbcRep.Summary = GetSummary(currCode_Type.ZAR,
+                cbcRep.Summary = GetSummary(this.Currency,
                     GetExcelStringValue(package, "SUMMARY", "K" + recCountryCls.RowNumber),
                     GetExcelStringValue(package, "SUMMARY", "C" + recCountryCls.RowNumber),
                     GetExcelStringValue(package, "SUMMARY", "D" + recCountryCls.RowNumber),

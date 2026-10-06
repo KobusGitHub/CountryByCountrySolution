@@ -201,11 +201,6 @@ namespace CBC_V2
             if (this.cmbCurrency != null)
             {
                 this.cmbCurrency.Enabled = !this.ckSars.Checked;
-                // when SARS is selected, ensure dropdown defaults to ZAR
-                if (this.ckSars.Checked)
-                {
-                    try { this.cmbCurrency.SelectedItem = "ZAR"; } catch { }
-                }
             }
         }
 

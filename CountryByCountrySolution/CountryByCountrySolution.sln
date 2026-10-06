@@ -1,10 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30011.22
+# Visual Studio Version 18
+VisualStudioVersion = 18.10.12224.181 stable
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CBC-V1", "CBC-V1\CBC-V1.csproj", "{09B36596-645E-41F3-AAB9-69B54D32EBA7}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CBC-V2", "CBC-V2\CBC-V2.csproj", "{C6290011-D5D5-49C3-8D41-A2A9FA32B097}"
 EndProject
 Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "CBC Setup", "CBC Setup\CBC Setup.vdproj", "{0409F379-AC75-4481-B4BA-3F780A8ECD4D}"
@@ -15,10 +13,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{09B36596-645E-41F3-AAB9-69B54D32EBA7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{09B36596-645E-41F3-AAB9-69B54D32EBA7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{09B36596-645E-41F3-AAB9-69B54D32EBA7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{09B36596-645E-41F3-AAB9-69B54D32EBA7}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C6290011-D5D5-49C3-8D41-A2A9FA32B097}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C6290011-D5D5-49C3-8D41-A2A9FA32B097}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C6290011-D5D5-49C3-8D41-A2A9FA32B097}.Release|Any CPU.ActiveCfg = Release|Any CPU
