@@ -1,17 +1,17 @@
-﻿using System;
+﻿using CBC_V2.models;
+using CBC_V2_OTHER_COUNTRIES;
+using CountryByCountryReportV2;
+using CountryByCountryReportV2.models;
+using OfficeOpenXml;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using OfficeOpenXml;
-
-using CountryByCountryReportV2;
-using CountryByCountryReportV2.models;
-using CBC_V2.models;
-using System.Xml.Serialization;
-using System.IO;
 using System.Xml;
-using CBC_V2_OTHER_COUNTRIES;
+using System.Xml.Serialization;
+using static OfficeOpenXml.ExcelErrorValue;
 
 namespace CBC_V2.Service.OtherCountries
 {
@@ -198,7 +198,7 @@ namespace CBC_V2.Service.OtherCountries
                 switch (docTypeIndec)
                 {
                     case "OECD0":
-                        // Resent Data
+                        //Resent Data
                         var oldDocRefValue = GetExcelStringValue(p, "Additional Information", "E" + rowNumber);
                         if (string.IsNullOrEmpty(oldDocRefValue))
                         {
@@ -206,6 +206,14 @@ namespace CBC_V2.Service.OtherCountries
                             throw new ArgumentException("Resent on empty reference INVALID!");
                         }
                         this.SetExcelStringValue(p, "Additional Information", "F" + rowNumber, "");
+
+                        // if its OECD0, (Resent Data) we need to omit the entire record.
+                        //p.Workbook.Worksheets["Additional Information"].DeleteRow(rowNumber);
+                        //rowNumber--;
+
+
+
+
                         break;
                     case "OECD1":
                         // New Data
@@ -444,6 +452,14 @@ namespace CBC_V2.Service.OtherCountries
                 cbcRep.ResCountryCode = OtherCountriesEnumLookup.GetCountryCodeEnumType(recCountryCls.CountryCode);
 
                 var docTypeIndic = GetExcelStringValue(package, "SUMMARY", "M" + recCountryCls.RowNumber);
+
+                if (docTypeIndic == "OECD0")
+                {
+                    // For Resent Data, we omit the entire record from the ReportingEntity section.
+                    continue;
+                }
+
+
                 var docRefId = GetExcelStringValue(package, "SUMMARY", "N" + recCountryCls.RowNumber);
                 var corrDocRefId = GetExcelStringValue(package, "SUMMARY", "O" + recCountryCls.RowNumber);
                 var corrMessageRefId = GetExcelStringValue(package, "CoverPage", "B3");
@@ -645,6 +661,14 @@ namespace CBC_V2.Service.OtherCountries
                 var info = new CorrectableAdditionalInfo_Type();
 
                 var docTypeIndic = GetExcelStringValue(package, "Additional Information", "D" + rowNumber);
+
+                if(docTypeIndic == "OECD0")
+                {
+                    // For Resent Data, we omit the entire record from the Additional Information section.
+                    rowNumber++;
+                    continue;
+                }
+
                 var docRefId = GetExcelStringValue(package, "Additional Information", "E" + rowNumber);
                 var corrDocRefId = GetExcelStringValue(package, "Additional Information", "F" + rowNumber);
                 var corrMessageRefId = GetExcelStringValue(package, "CoverPage", "B3");

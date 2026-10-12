@@ -461,6 +461,14 @@ namespace CBC_V2.Service.SARS
                 cbcRep.ResCountryCode = SarsEnumLookup.GetCountryCodeEnumType(recCountryCls.CountryCode);
 
                 var docTypeIndic = GetExcelStringValue(package, "SUMMARY", "M" + recCountryCls.RowNumber);
+
+                if (docTypeIndic == "OECD0")
+                {
+                    // For Resent Data, we omit the entire record from the ReportingEntity section.
+                    continue;
+                }
+
+
                 var docRefId = GetExcelStringValue(package, "SUMMARY", "N" + recCountryCls.RowNumber);
                 var corrDocRefId = GetExcelStringValue(package, "SUMMARY", "O" + recCountryCls.RowNumber);
                 var corrMessageRefId = GetExcelStringValue(package, "CoverPage", "B3");
@@ -667,6 +675,14 @@ namespace CBC_V2.Service.SARS
                 var info = new CorrectableAdditionalInfo_Type();
 
                 var docTypeIndic = GetExcelStringValue(package, "Additional Information", "D" + rowNumber);
+
+                if (docTypeIndic == "OECD0")
+                {
+                    // For Resent Data, we omit the entire record from the Additional Information section.
+                    rowNumber++;
+                    continue;
+                }
+
                 var docRefId = GetExcelStringValue(package, "Additional Information", "E" + rowNumber);
                 var corrDocRefId = GetExcelStringValue(package, "Additional Information", "F" + rowNumber);
                 var corrMessageRefId = GetExcelStringValue(package, "CoverPage", "B3");

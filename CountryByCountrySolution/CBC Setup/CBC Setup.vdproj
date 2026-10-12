@@ -914,15 +914,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:CBC Report"
-        "ProductCode" = "8:{F158646C-32B9-4535-81A6-F8BAC2EB417C}"
-        "PackageCode" = "8:{EEB15C0C-AC3D-4B8D-9161-1F3396578278}"
+        "ProductCode" = "8:{49DCDBCD-27BA-4B80-B4D5-9869917BB3D8}"
+        "PackageCode" = "8:{98084754-9900-461F-BF58-8D0D703DCDBD}"
         "UpgradeCode" = "8:{EDDD6F08-0562-46F0-B587-8E348EE6C04D}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:FALSE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:2.3.0"
+        "ProductVersion" = "8:2.3.1"
         "Manufacturer" = "8:CrazySoftware"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
@@ -1464,7 +1464,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_A44699BD7A7A4B3393F2D2ECCDBB4ADD"
             {
-            "SourcePath" = "8:..\\CBC-V2\\obj\\Release\\CBC-V2.exe"
+            "SourcePath" = "8:"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_36027FF69897486D9105C5DFDDE7FBBA"
